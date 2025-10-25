@@ -4,7 +4,7 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Pokedéx</title>
-	<!-- Match fonts used on Index.html -->
+	<!-- fontes usadas no Index.html -->
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="https://fonts.googleapis.com/css2?family=Shrikhand&family=Archivo+Black&family=Poppins:wght@400;700&display=swap" rel="stylesheet">
@@ -34,7 +34,7 @@
 			outline: none;
 		}
 		.search-box button {
-			/* keep button minimal for the SVG icon */
+			/* mantem botao minimo */
 			background: transparent;
 			color: inherit;
 			border: none;
@@ -59,7 +59,7 @@
 			box-shadow: 0 6px 18px rgba(0,0,0,0.08);
 			cursor: pointer;
 			transition: transform .16s ease, box-shadow .16s ease;
-			position: relative; /* for favorite button */
+			position: relative; /* botao de fav */
 		}
 		.pokemon-card:hover { transform: translateY(-6px); box-shadow: 0 12px 30px rgba(0,0,0,0.12); }
 		.pokemon-card img {
@@ -80,7 +80,7 @@
 	.modal-right{ flex:1; min-width:200px }
 		.image-wrap{ position:relative; display:inline-block; border-radius:12px; overflow:visible }
 		.image-wrap img{ display:block; border-radius:10px; position:relative; z-index:2 }
-		/* red fade behind the image */
+		/* vermelho atras da img */
 		.image-wrap::before{
 			content:''; position:absolute; left:-8px; right:-8px; top:-8px; bottom:-8px; z-index:1;
 			background: radial-gradient(circle at 30% 20%, rgba(255,80,80,0.18), rgba(255,40,40,0.08) 20%, rgba(0,0,0,0.06) 60%, transparent 70%);
@@ -88,7 +88,7 @@
 			transform: translateZ(0);
 			border-radius:14px;
 		}
-		.image-wrap::after{ /* subtle shadow */
+		.image-wrap::after{ /* sombra */
 			content:''; position:absolute; inset:auto  -10px -12px -10px; height:40px; z-index:0; pointer-events:none;
 			box-shadow: 0 18px 40px rgba(0,0,0,0.35);
 			border-radius:50%;
@@ -115,13 +115,13 @@
 	.nav-links a:hover{ color:#e53935; transform:scale(1.08) }
 	.nav-links a.active{ color:#e53935 } /* letra fica vermelha quando ativo */
 
-	/* title */
+	/* titulo */
 	.page-title{ font-family: 'Shrikhand', cursive; font-size:44px; margin:18px 0 6px 0; letter-spacing:1px; font-weight:900; color:#951c1c; text-shadow:0 6px 18px rgba(0,0,0,0.04) }
 	.subtitle{ color:#666; margin:0 0 14px 0; text-align:center }
 	.search-box button{ color:#e53935 }
 	.brand span{ color:#000 }
 
-/* Lists page specific styles (improved look) */
+/* listas */
 .create-form{ display:flex; gap:8px; align-items:center; margin-bottom:18px; flex-wrap:wrap }
 .create-form input, .create-form textarea{ padding:10px; border-radius:10px; border:1px solid #ececec; box-shadow:inset 0 1px 0 rgba(0,0,0,0.02); }
 .create-form button{ background:linear-gradient(180deg,#ff6b6b,#e53935); color:#fff; border:none; padding:10px 14px; border-radius:10px; cursor:pointer; font-weight:700; box-shadow:0 8px 18px rgba(229,57,53,0.12) }
@@ -140,12 +140,12 @@
 .poke-tile{ background:#ffffff; border-radius:12px; padding:10px; text-align:center; box-shadow:0 8px 20px rgba(0,0,0,0.04) }
 .poke-tile img{ width:96px; height:96px; object-fit:contain }
 .empty{ color:#666; text-align:center; padding:30px }
-	/* type filters */
+	/* filters */
 	.type-filters{ display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin:8px 0 12px 0 }
 	.filter-type-btn{ border:none; padding:6px 10px; border-radius:999px; cursor:pointer; font-weight:700; color:#fff; transition:transform .12s ease, box-shadow .12s ease }
 	.filter-type-btn.active{ box-shadow: 0 8px 24px rgba(229,57,53,0.12); transform:scale(1.04) }
 	.clear-filter{ background:transparent; border:1px solid #e53935; color:#e53935; padding:6px 10px; border-radius:8px; cursor:pointer; font-weight:700 }
-	/* global spinner */
+	/* spinner */
 	.spinner{ position:fixed; right:18px; bottom:18px; width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center; z-index:1300 }
 	.spinner .ring{ width:44px; height:44px; border:4px solid rgba(229,57,53,0.12); border-top-color: #e53935; border-radius:50%; animation:spin 1s linear infinite }
 	.spinner.hidden{ display:none }
@@ -182,8 +182,7 @@
 		<section id="list-detail-wrap" style="margin-top:18px"></section>
 	</main>
 
-	<!-- spinner + modal placeholder (same as pokedex) -->
-	<!-- Spinner for global loading -->
+	<!-- Spinner p loading -->
 	<div id="global-spinner" class="spinner hidden" aria-hidden="true" aria-live="polite"><div class="ring" aria-hidden="true"></div></div>
 
 	<div class="modal-overlay" id="poke-modal" aria-hidden="true">
@@ -200,7 +199,7 @@
 	</div>
 
 	<script>
-		// Reuse same localStorage key used by pokedex page
+		// reutiliza msm localStorage usada na pag da pokedex 
 		const LISTS_KEY = 'pokedex_lists_v1';
 		let lists = {};
 
@@ -240,7 +239,7 @@
 			const itemsWrap = detail.querySelector('#list-items');
 			(l.items||[]).forEach(it=>{
 				const tile = document.createElement('div'); tile.className='poke-tile';
-				// add data attributes so we can fetch details when clicked
+				// adiciona data attributes para facilitar pegar id/nome depois
 				tile.dataset.pokeId = String(it.id);
 				tile.dataset.pokeName = String(it.name || '');
 				tile.innerHTML = `<img src="${escapeHtml(it.img)}" alt="${escapeHtml(it.name)}"><div style="font-weight:700;margin-top:8px">${escapeHtml(it.name)}</div><div style="margin-top:8px"><button class="btn-danger remove-item">Remover</button></div>`;
@@ -251,15 +250,15 @@
 			detail.querySelector('#delete-list').addEventListener('click', ()=>{ const ok = confirm(`Excluir lista "${l.name}"? Esta ação não pode ser desfeita.`); if(!ok) return; deleteList(l.id); wrap.innerHTML=''; });
 		}
 
-		// enable clicking a pokemon tile to open full details (fetch from PokeAPI when needed)
+		// permite clicar em tiles p ver detalhes
 		function setupListTileDetails(){
-			// delegate clicks on dynamically created tiles inside list-detail-wrap
+			// delega cliques p container
 			const wrap = document.getElementById('list-detail-wrap');
 			if(!wrap) return;
 			wrap.addEventListener('click', async (e)=>{
 				const tile = e.target.closest('.poke-tile');
 				if(!tile) return;
-				// if click was on remove button, ignore (that handler already exists)
+				// se o clique foi no botao de remover, ignora
 				if(e.target.closest('.remove-item')) return;
 				const pid = tile.dataset.pokeId || tile.getAttribute('data-poke-id');
 				if(!pid) return;
@@ -267,7 +266,7 @@
 					showSpinner();
 					const resp = await fetch(`https://pokeapi.co/api/v2/pokemon/${pid}`);
 					if(resp.ok){ const full = await resp.json(); showModal(full); }
-					else { // fallback: build minimal object from tile
+					else { 
 						const name = tile.dataset.pokeName || tile.querySelector('div') && tile.querySelector('div').textContent || 'Pokémon';
 						showModal({ id: pid, name: name.toString().toLowerCase(), stats: [], types: [], abilities: [] });
 					}
@@ -277,7 +276,7 @@
 			});
 		}
 
-		// small helpers copied from pokedex page to render modal with animated stats
+		// copiadas da pag da pokedex p reaproveitar
 		const typeNamePT = (name) => {
 		  const map = { fire:'Fogo', water:'Água', grass:'Grama', electric:'Elétrico',
 		    poison:'Veneno', rock:'Pedra', ground:'Terra', bug:'Inseto', dragon:'Dragão',
@@ -326,7 +325,7 @@
 		  requestAnimationFrame(step);
 		}
 
-		// Spinner control with reference counting to support nested calls
+		// spinner controla a visibilidade
 		let _spinnerRef = 0;
 		function showSpinner(){
 		  _spinnerRef = Math.max(0, _spinnerRef) + 1;
@@ -338,7 +337,7 @@
 		  if(_spinnerRef <= 0){ const el = document.getElementById('global-spinner'); if(el){ el.classList.add('hidden'); el.setAttribute('aria-hidden','true'); } _spinnerRef = 0; }
 		}
 
-		// modal setup & show (uses modal-overlay markup added below)
+		// modal setup 
 		(function setupModal(){
 		  const modalOverlay = document.getElementById('poke-modal');
 		  if(!modalOverlay) return;
@@ -386,13 +385,12 @@
 		  return name.split(/[-_ ]+/).map(w => w.charAt(0).toUpperCase()+w.slice(1)).join(' ');
 		}
 
-		// call setup to wire tile clicks
+	
 		setupListTileDetails();
 
-		// small helper to escape HTML
 		function escapeHtml(s){ return (s||'').toString().replace(/[&<>\"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":"&#39;"}[c]; }); }
 
-		// hookup form
+		// eventos
 		document.getElementById('create-list').addEventListener('click', ()=>{
 			const name = document.getElementById('list-name').value && document.getElementById('list-name').value.trim();
 			const desc = document.getElementById('list-desc').value && document.getElementById('list-desc').value.trim();
