@@ -10,7 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Shrikhand&family=Archivo+Black&family=Poppins:wght@400;700&display=swap" rel="stylesheet">
 
     <style>
-        /* Smooth scrolling for anchor/button navigation */
+        /* scrolla levemente */
         html {
             scroll-behavior: smooth;
         }
@@ -122,7 +122,7 @@ nav ul li a:hover {
             transform: translateY(50px); 
             transition: transform 2s ease-out, opacity 2s ease-out; 
         }
-        /* Pokemons section styles */
+        /* estilo da secao de pokemon */
         .pokemons-section {
             padding: 60px 20px;
             background: #a52a2a; /* fundo vermelho */
@@ -162,10 +162,10 @@ nav ul li a:hover {
 
         .modal-overlay { position: fixed; inset:0; background: rgba(0,0,0,0.6); display:none; align-items:center; justify-content:center; z-index:1200 }
         .modal-overlay.show { display:flex }
-        /* Modal compacto: largura reduzida e conteúdo que encolhe corretamente */
+        /* modal compacto: largura reduzida e conteúdo que encolhe corretamente */
         .modal-content { background:#fff; border-radius:12px; padding:14px; max-width:560px; width:min(94%,560px); color:#222; box-shadow:0 12px 40px rgba(0,0,0,0.28); display:flex; gap:12px; align-items:flex-start; box-sizing:border-box }
         .modal-left img{ width:140px; height:auto; display:block }
-        .modal-right{ flex:1; min-width:0 } /* allow content to shrink on small widths */
+        .modal-right{ flex:1; min-width:0 } /* permite o conteudo a ficar menor */
         .modal-right h3{ margin:0 0 6px 0 }
     .stats { display:flex; flex-direction:column; gap:8px; margin-top:12px; min-width:0 }
     .stat-row{ display:flex; gap:8px; align-items:center }
@@ -174,7 +174,7 @@ nav ul li a:hover {
     .bar-fill{ height:100%; width:0%; background: linear-gradient(90deg,#ff6b6b,#ff3b3b); border-radius:10px; transition:width .9s cubic-bezier(.2,.9,.2,1) }
     .bar-value{ margin-left:8px; width:40px; text-align:right; font-weight:700; color:#222 }
 
-    /* Mobile: empilhar conteúdo e ajustar imagem para evitar muito espaço vazio */
+    /* mobile: empilhar conteúdo e ajustar imagem para evitar muito espaço vazio */
     @media (max-width:600px){
         .modal-content{ flex-direction:column; align-items:center; padding:12px; gap:10px }
         .modal-left img{ width:160px }
@@ -236,7 +236,7 @@ nav ul li a:hover {
     </main>
 
         <script>
-            // update favorites count in the Index nav if any
+            // atualiza o link de favoritos com a contagem atual
             (function(){
                 try{
                     const favLink = document.getElementById('index-fav-link');
@@ -249,7 +249,7 @@ nav ul li a:hover {
             })();
         </script>
 
-    <!-- Seção alvo para os pokémons; o botão "Comece a busca" rola até aqui -->
+    <!-- seção alvo para os pokémons; o botão "comece a busca" rola até aqui -->
     <section id="pokemons" class="pokemons-section" aria-label="Lista de Pokémons">
         <h2>Explore alguns Pokémons</h2>
         <div class="cards">
@@ -282,7 +282,7 @@ nav ul li a:hover {
             }, 50);
         });
 
-        // animate numbers helper (vanilla JS, no frameworks)
+        // anima numeros (vanilla JS, sem frameworks)
         function animateNumber(el, start, end, duration){
             const startTime = performance.now();
             const step = (now)=>{
@@ -313,11 +313,11 @@ nav ul li a:hover {
             // carregar pokemons na seção quando a página estiver pronta
             carregarPokemons();
         });
-        let loadingBatch = false; // prevents concurrent batch loads
+        let loadingBatch = false; // preocaucao contra chamadas simultaneas
 
-        const POKEMON_LIMIT = 151; // total to consider
-        const BATCH_SIZE = 36; // how many to load per batch
-        let pokemonList = []; // stores {name,url}
+        const POKEMON_LIMIT = 151; // total p considerar
+        const BATCH_SIZE = 36; // qnt carega cada vez
+        let pokemonList = []; // armazem {name,url}
         let loadedCount = 0;
         const typeColors = {
             fire:'#F08030', water:'#6890F0', grass:'#78C850', electric:'#F8D030',
@@ -351,7 +351,7 @@ nav ul li a:hover {
 
             if (loadingBatch) return;
             loadingBatch = true;
-            // show small loader
+            // mostra pequeno loading
             const loading = document.createElement('div');
             loading.style.color = '#fff';
             loading.style.textAlign = 'center';
@@ -401,7 +401,7 @@ nav ul li a:hover {
             loadedCount = end;
             loadingBatch = false;
 
-            // if we've loaded all, update load-more bar state (it will change to redirect)
+            // se carregou tudo, muda texto do load more
             updateLoadMoreText();
         }
 
@@ -415,7 +415,7 @@ nav ul li a:hover {
             }
         }
 
-        // Create modal overlay HTML once
+        // cria modal uma vez
         (function createModal() {
             if (document.querySelector('.modal-overlay')) return;
             const overlay = document.createElement('div');
@@ -442,11 +442,11 @@ nav ul li a:hover {
                 }
             });
 
-            // closeModal and focus trap helpers
+            // fecha modal e restaura foco
             let previouslyFocused = null;
             function closeModal() {
                 overlay.classList.remove('show');
-                // remove any keydown handler added when opening
+                // remove qualquer keydown hook
                 if (overlay._modalKeydown) {
                     try { document.removeEventListener('keydown', overlay._modalKeydown); } catch(e){}
                     overlay._modalKeydown = null;
@@ -473,7 +473,7 @@ nav ul li a:hover {
                 }
             }
 
-            // expose helpers for showModal to use
+            // expor funções para uso externo
             overlay._closeModal = closeModal;
             overlay._setPreviouslyFocused = (el) => { previouslyFocused = el; };
         })();
@@ -509,7 +509,7 @@ nav ul li a:hover {
                 return `<span class="type" style="background:${color}">${typeNamePT(t.type.name)}</span>`;
             }).join('');
 
-            // stats: create animated bars (Portuguese labels)
+            // stats: barras animadas e pt-br com numeros
             const statNames = {
                 'hp':'HP', 'attack':'Ataque', 'defense':'Defesa', 'speed':'Velocidade',
                 'special-attack':'Ataque Especial', 'special-defense':'Defesa Especial'
@@ -524,13 +524,13 @@ nav ul li a:hover {
                 const val = document.createElement('div'); val.className = 'bar-value'; val.textContent = '0';
                 row.appendChild(label); row.appendChild(barWrap); row.appendChild(val);
                 statsEl.appendChild(row);
-                // animate staggered
+                // anima
                 const percent = Math.round((s.base_stat / 255) * 100);
                 setTimeout(()=>{ fill.style.width = percent + '%'; fill.setAttribute('aria-valuenow', s.base_stat); animateNumber(val, 0, s.base_stat, 900); }, 120 * idx + 80);
             });
 
             const habilidadeTexto = (poke.abilities || []).map(a => a.ability.name).join(', ');
-            // traduzir nome das habilidades para forma legível em português (prettify)
+            // traduzir nome das habilidades para forma legível em português 
             function traduzirHabilidade(nome) {
                 const map = {
                     'overgrow':'Overgrow', 'blaze':'Blaze', 'torrent':'Torrent', 'shield-dust':'Pó Protetor',
@@ -543,12 +543,12 @@ nav ul li a:hover {
             }
             const habilidadesTraduzidas = (poke.abilities || []).map(a => traduzirHabilidade(a.ability.name)).join(', ');
             abilitiesEl.innerHTML = `<strong>Habilidades:</strong> ${habilidadesTraduzidas}`;
-            // open modal and manage focus
+            // abre modal
             overlay._setPreviouslyFocused(document.activeElement);
             overlay.classList.add('show');
             const closeBtn = overlay.querySelector('.close-btn');
             if (closeBtn) closeBtn.focus();
-            // hook modalKeydown into overlay (created earlier)
+            // hook para manter foco dentro do modal
             if (!overlay._modalKeydown) {
                 overlay._modalKeydown = function(e){
                     if (e.key === 'Escape') { overlay._closeModal(); }
@@ -567,7 +567,7 @@ nav ul li a:hover {
             }
         }
 
-        // Show a "Busque mais" button when user reaches near the bottom of the page
+        // mostra "Busque mais" qnd chegar perto do fim da página
         (function setupLoadMore() {
             const bar = document.createElement('div');
             bar.className = 'load-more-bar';
@@ -578,7 +578,7 @@ nav ul li a:hover {
                 const nearBottom = (window.innerHeight + window.pageYOffset) >= (document.body.offsetHeight - 60);
                 if (nearBottom) {
                     bar.classList.add('show');
-                    // if near bottom and more pokemons available, auto-load next batch
+                    // se ainda houver pokemons para carregar, carrega mais
                     if (loadedCount < (pokemonList ? pokemonList.length : 0) && !loadingBatch) {
                         await loadBatch();
                     }
@@ -587,12 +587,12 @@ nav ul li a:hover {
                 }
             }
 
-            // click: load more batches while available, otherwise redirect to pokedex
+            // clique no barra
             bar.addEventListener('click', async () => {
                 if (loadedCount < (pokemonList ? pokemonList.length : 0)) {
-                    // load next batch
+                    // carrega mais pokemons
                     await loadBatch();
-                    // scroll a bit so user sees new cards
+                    // scroll um pouco praver novos cards
                     window.scrollBy({ top: 200, behavior: 'smooth' });
                 } else {
                     window.location.href = 'pokedex.html';
@@ -601,11 +601,11 @@ nav ul li a:hover {
 
             window.addEventListener('scroll', checkScroll, { passive: true });
             window.addEventListener('resize', checkScroll);
-            // initial check in case page is short
+            // verifica inicialmente
             checkScroll();
         })();
         
-        // Create a hero collage image from first few pokemons
+        // cria uma colagem de heróis para a imagem principal
         async function createHeroCollage(items) {
             try {
                 if (!items || !items.length) return;
@@ -636,7 +636,7 @@ nav ul li a:hover {
                     });
                     const c = i % cols, r = Math.floor(i/cols);
                     const x = c * tileW, y = r * tileH;
-                    // draw centered and cover
+                    // centra e escala a imagem dentro do tile
                     const ratio = Math.max(tileW / img.width, tileH / img.height || 1);
                     const w = img.width * ratio, h = img.height * ratio;
                     const dx = x + (tileW - w)/2, dy = y + (tileH - h)/2;
@@ -647,7 +647,7 @@ nav ul li a:hover {
                     hero.src = canvas.toDataURL('image/png');
                 }
             } catch(e) {
-                // ignore and keep default image
+                // ignora e não altera a imagem
             }
         }
     </script>
