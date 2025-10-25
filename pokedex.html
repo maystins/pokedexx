@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pokedéx</title>
+  <!-- Match fonts used on Index.html -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Shrikhand&family=Archivo+Black&family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 20px;
+      background: #f9f9f9;
+    }
+    h1 {
+      color: #a52a2a;
+      text-align: center;
+    }
+    .search-box {
+      display: flex;
+      justify-content: center;
+      margin: 20px auto;
+      gap: 10px;
+    }
+    .sr-only{ position: absolute !important; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0 }
+    .search-btn svg{ width:18px; height:18px; display:block }
+    .search-box input {
+      padding: 8px;
+      width: 200px;
+      border: 1px solid #aaa;
+      border-radius: 8px;
+      outline: none;
+    }
+    .search-box button {
+      /* keep button minimal for the SVG icon */
+      background: transparent;
+      color: inherit;
+      border: none;
+      padding: 6px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .search-box button:hover { background: rgba(0,0,0,0.03); }
+    .search-btn{ background:transparent; border:none; padding:6px; border-radius:6px; cursor:pointer }
+    .search-btn:focus{ outline:none; box-shadow:none }
+    .pokemon-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+    .pokemon-card {
+      background: white;
+      border-radius: 12px;
+      padding: 12px;
+      text-align: center;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+      cursor: pointer;
+      transition: transform .16s ease, box-shadow .16s ease;
+      position: relative; /* for favorite button */
+    }
+    .pokemon-card:hover { transform: translateY(-6px); box-shadow: 0 12px 30px rgba(0,0,0,0.12); }
+    .pokemon-card img {
+      width: 120px;
+      height: 120px;
+      object-fit: contain;
+    }
+    .type-badges { display:flex; gap:6px; justify-content:center; margin-top:8px; flex-wrap:wrap }
+    .type { padding:4px 8px; border-radius:12px; font-size:12px; color:#fff; font-weight:700; text-transform:capitalize }
+  .fav-btn{ position:absolute; right:10px; top:10px; background:transparent; border:none; font-size:18px; cursor:pointer }
+  .fav-btn.active{ filter: drop-shadow(0 4px 10px rgba(229,57,53,0.22)); }
+
+    /* modal */
+    .modal-overlay { position: fixed; inset:0; background: rgba(0,0,0,0.6); display:none; align-items:center; justify-content:center; z-index:1200 }
+    .modal-overlay.show { display:flex }
+  .modal-box { background:#fff; border-radius:12px; padding:14px; max-width:640px; width:auto; color:#222; box-shadow:0 12px 40px rgba(0,0,0,0.3); display:flex; gap:12px; align-items:flex-start; flex-wrap:wrap }
+  .modal-left img{ width:170px }
+  .modal-right{ flex:1; min-width:200px }
+    .image-wrap{ position:relative; display:inline-block; border-radius:12px; overflow:visible }
+    .image-wrap img{ display:block; border-radius:10px; position:relative; z-index:2 }
+    /* red fade behind the image */
+    .image-wrap::before{
+      content:''; position:absolute; left:-8px; right:-8px; top:-8px; bottom:-8px; z-index:1;
+      background: radial-gradient(circle at 30% 20%, rgba(255,80,80,0.18), rgba(255,40,40,0.08) 20%, rgba(0,0,0,0.06) 60%, transparent 70%);
+      filter: blur(18px);
+      transform: translateZ(0);
+      border-radius:14px;
+    }
+    .image-wrap::after{ /* subtle shadow */
+      content:''; position:absolute; inset:auto  -10px -12px -10px; height:40px; z-index:0; pointer-events:none;
+      box-shadow: 0 18px 40px rgba(0,0,0,0.35);
+      border-radius:50%;
+      opacity:0.9;
+      transform: translateY(6px);
+    }
+    .modal-right h3{ margin:0 0 6px 0 }
+  .stats { display:flex; flex-direction:column; gap:10px; margin-top:12px; min-width:240px }
+  .stat-row{ display:flex; gap:10px; align-items:center }
+  .stat-label{ width:120px; font-weight:600; font-size:14px; color:#333 }
+  .bar{ flex:1; background:#eee; height:14px; border-radius:10px; overflow:hidden; position:relative }
+  .bar-fill{ height:100%; width:0%; background: linear-gradient(90deg,#ff6b6b,#ff3b3b); border-radius:10px; transition:width .9s cubic-bezier(.2,.9,.2,1) }
+  .bar-value{ margin-left:8px; width:44px; text-align:right; font-weight:700; color:#222 }
+    .abilities { margin-top:8px }
+    .close-btn { position:absolute; right:18px; top:12px; background:transparent; border:none; font-size:20px; cursor:pointer }
+  /* navbar */
+  .topbar{ position:sticky; top:0; z-index:1100; background:linear-gradient(180deg, #fff, #fbfbfb); box-shadow:0 6px 18px rgba(25,25,25,0.07); display:flex; align-items:center; justify-content:space-between; padding:12px 18px; border-bottom: none }
+  .brand{ display:flex; align-items:center; gap:10px; font-weight:800; color:#222 }
+  .brand img{ width:36px; height:36px }
+  .brand{ text-decoration:none }
+  .brand span{ text-decoration:none }
+  .nav-links{ display:flex; gap:18px; align-items:center }
+  .nav-links a{ color:black; text-decoration:none; font-weight:400; padding:6px 8px; border-radius:6px; transition:color .18s ease, transform .18s ease }
+  .nav-links a:hover{ color:#e53935; transform:scale(1.08) }
+  .nav-links a.active{ color:#e53935 } /* letra fica vermelha quando ativo */
+
+  /* title */
+  .page-title{ font-family: 'Shrikhand', cursive; font-size:44px; margin:18px 0 6px 0; letter-spacing:1px; font-weight:900; color:#951c1c; text-shadow:0 6px 18px rgba(0,0,0,0.04) }
+  .subtitle{ color:#666; margin:0 0 14px 0; text-align:center }
+  .search-box button{ color:#e53935 }
+  .brand span{ color:#000 }
+  /* type filters */
+  .type-filters{ display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin:8px 0 12px 0 }
+  .filter-type-btn{ border:none; padding:6px 10px; border-radius:999px; cursor:pointer; font-weight:700; color:#fff; transition:transform .12s ease, box-shadow .12s ease }
+  .filter-type-btn.active{ box-shadow: 0 8px 24px rgba(229,57,53,0.12); transform:scale(1.04) }
+  .clear-filter{ background:transparent; border:1px solid #e53935; color:#e53935; padding:6px 10px; border-radius:8px; cursor:pointer; font-weight:700 }
+  /* global spinner */
+  .spinner{ position:fixed; right:18px; bottom:18px; width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center; z-index:1300 }
+  .spinner .ring{ width:44px; height:44px; border:4px solid rgba(229,57,53,0.12); border-top-color: #e53935; border-radius:50%; animation:spin 1s linear infinite }
+  .spinner.hidden{ display:none }
+  @keyframes spin{ to{ transform:rotate(360deg) } }
+  </style>
+</head>
+<body>
+
+  <header class="topbar">
+    <a href="Index.html" class="brand" aria-label="Voltar para Início"><img src="pokebola.png" alt="pokebola"><span>Pokédex</span></a>
+    <nav class="nav-links" aria-label="Principal">
+      <a href="Index.html" class="nav-home">Início</a>
+      <a href="#favorites" class="nav-fav">Favoritos</a>
+  <a href="listas.html" class="nav-lists">Listas</a>
+    </nav>
+  </header>
+
+  <main style="padding:18px">
+    <h1 class="page-title">Pokédex</h1>
+  <p class="subtitle">Explore os Pokémons — clique em um card para ver detalhes</p>
+
+    <form id="search-form" class="search-box" role="search" aria-label="Pesquisar Pokémons">
+      <label for="search-input" class="sr-only">Buscar Pokémon por nome ou ID</label>
+      <input type="search" id="search-input" name="q" placeholder="Nome ou ID do Pokémon..." aria-label="Nome ou ID do Pokémon">
+      <button type="submit" class="search-btn" aria-label="Buscar Pokémon">
+        <!-- SVG magnifying glass (filled stroke) -->
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+          <path d="M21 21l-4.35-4.35" stroke="#e53935" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="11" cy="11" r="6" stroke="#e53935" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </form>
+    <!-- filtros por tipo (serão preenchidos por JS) -->
+    <div id="type-filters-area" style="text-align:center; margin-top:6px;">
+      <div id="type-filters" class="type-filters" aria-label="Filtros por tipo"></div>
+      <div style="margin-top:8px;">
+        <button id="clear-type-filter" class="clear-filter" style="display:none">Mostrar todos</button>
+      </div>
+    </div>
+  </main>
+
+  <section id="pokemons-section" aria-label="Lista de Pokémons">
+    <div class="pokemon-container" id="pokemon-container"></div>
+  </section>
+  <div style="text-align:center; margin:18px 0 40px 0;"><button id="load-more" style="padding:10px 16px; font-weight:800; border-radius:10px; background:#e53935; color:#fff; border:none; cursor:pointer; box-shadow:0 8px 20px rgba(229,57,53,0.14)">Mostrar mais</button></div>
+
+  <!-- Spinner for global loading -->
+  <div id="global-spinner" class="spinner hidden" aria-hidden="true" aria-live="polite"><div class="ring" aria-hidden="true"></div></div>
+
+  <!-- modal placeholder -->
+  <div class="modal-overlay" id="poke-modal" aria-hidden="true">
+    <div class="modal-box" role="dialog" aria-modal="true" aria-label="Detalhes do Pokémon">
+      <button class="close-btn" aria-label="Fechar">✕</button>
+  <div class="modal-left"><div class="image-wrap"><img src="pokemon.png" alt="pokemon"></div></div>
+      <div class="modal-right">
+        <h3>Nome</h3>
+        <div class="type-badges"></div>
+        <div class="stats"></div>
+        <div class="abilities"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const container = document.getElementById("pokemon-container");
+    const modalOverlay = document.getElementById('poke-modal');
+
+    // Application state
+    const FAVORITES_KEY = 'pokedex_favorites_v1';
+    const state = {
+      offset: 0,
+      batchSize: 24,
+      totalCount: null,
+      view: 'all' // 'all' or 'favorites'
+    };
+
+    // load favorites map { id: {id,name,img,types} }
+    let favorites = JSON.parse(localStorage.getItem(FAVORITES_KEY) || '{}');
+
+    function saveFavorites(){
+      localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
+      updateFavBadge();
+    }
+
+    function isFavorite(id){ return !!favorites[id]; }
+
+    function toggleFavoriteFromCard(pokeSummary){
+      const id = String(pokeSummary.id);
+      if(favorites[id]){ delete favorites[id]; }
+      else { favorites[id] = { id: pokeSummary.id, name: pokeSummary.name, img: pokeSummary.img || pokeSummary.sprites?.front_default || (pokeSummary.sprites && pokeSummary.sprites.other && pokeSummary.sprites.other['official-artwork'] && pokeSummary.sprites.other['official-artwork'].front_default) || 'pokemon.png', types: (pokeSummary.types || []).map(t=> typeof t === 'string' ? t : t.type?.name ) } }
+      saveFavorites();
+      updateFavButtons();
+    }
+
+    function updateFavButtons(){
+      document.querySelectorAll('.fav-btn').forEach(btn=>{
+        const id = btn.dataset.id;
+        if(isFavorite(id)) { btn.classList.add('active'); btn.textContent = '❤️'; }
+        else { btn.classList.remove('active'); btn.textContent = '🤍'; }
+      });
+      updateFavBadge();
+    }
+
+    function updateFavBadge(){
+      const favLink = document.querySelector('.nav-fav');
+      if(!favLink) return;
+      const count = Object.keys(favorites).length;
+      favLink.textContent = count ? `Favoritos (${count})` : 'Favoritos';
+    }
+
+    function showFavoritesView(){
+      state.view = 'favorites';
+      // set active class
+      document.querySelectorAll('.nav-links a').forEach(x=>x.classList.remove('active'));
+      const favLink = document.querySelector('.nav-fav'); if(favLink) favLink.classList.add('active');
+      // render favorites
+      container.innerHTML = '';
+      if(loadMoreBtn) loadMoreBtn.style.display = 'none';
+      const ids = Object.keys(favorites);
+      if(ids.length === 0){ container.innerHTML = '<p style="text-align:center;color:#666">Nenhum favorito ainda.</p>'; return; }
+      ids.forEach(id=>{
+        const s = favorites[id];
+        criarCard({ id: s.id, name: s.name, sprites: { front_default: s.img }, types: (s.types||[]).map(n=> ({ type: { name: n } })) });
+      });
+      updateFavButtons();
+      // smooth scroll and focus the section so user is taken directly to the favorites view
+      const section = document.getElementById('pokemons-section');
+      if(section) section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // move keyboard focus to the container for accessibility
+      setTimeout(()=>{ container.setAttribute('tabindex','-1'); container.focus(); }, 400);
+    }
+
+    // attach favorites view to nav link
+    document.addEventListener('DOMContentLoaded', ()=>{
+      const favLink = document.querySelector('.nav-fav');
+      if(favLink){ favLink.addEventListener('click', (e)=>{ e.preventDefault(); showFavoritesView(); }); }
+      updateFavBadge();
+    });
+
+    const typeNamePT = (name) => {
+      const map = { fire:'Fogo', water:'Água', grass:'Grama', electric:'Elétrico',
+        poison:'Veneno', rock:'Pedra', ground:'Terra', bug:'Inseto', dragon:'Dragão',
+        psychic:'Psíquico', fairy:'Fada', fighting:'Lutador', normal:'Normal',
+        ghost:'Fantasma', steel:'Aço', ice:'Gelo', flying:'Voador', dark:'Sombrio'};
+      return map[name] || name.charAt(0).toUpperCase()+name.slice(1);
+    };
+
+    /* Lists (simple list management stored in localStorage) */
+    const LISTS_KEY = 'pokedex_lists_v1';
+    let lists = {}; // { id: { id, name, items: [ {id,name,img} ] } }
+
+    function loadLists(){
+      try{ lists = JSON.parse(localStorage.getItem(LISTS_KEY) || '{}'); }catch(e){ lists = {}; }
+      renderLists();
+    }
+    function saveLists(){ localStorage.setItem(LISTS_KEY, JSON.stringify(lists)); renderLists(); }
+
+    function createList(name, description){
+      if(!name || !name.trim()) return null;
+      const id = 'list_' + Date.now();
+      lists[id] = { id, name: name.trim(), description: (description || '').trim(), items: [] };
+      saveLists();
+      return lists[id];
+    }
+
+    function addPokemonToList(listId, poke){
+      if(!lists[listId]) return;
+      const exists = lists[listId].items.find(i=> String(i.id) === String(poke.id));
+      if(exists) return;
+      lists[listId].items.push({ id: poke.id, name: poke.name, img: (poke.sprites && (poke.sprites.other && poke.sprites.other['official-artwork'] && poke.sprites.other['official-artwork'].front_default)) || poke.sprites?.front_default || poke.img || 'pokemon.png' });
+      saveLists();
+    }
+
+    function removePokemonFromList(listId, pokeId){
+      if(!lists[listId]) return;
+      lists[listId].items = (lists[listId].items || []).filter(i=> String(i.id) !== String(pokeId));
+      saveLists();
+    }
+
+    function renderLists(){
+      const container = document.getElementById('lists-container');
+      const empty = document.getElementById('lists-empty');
+      if(!container) return;
+      container.innerHTML = '';
+      const keys = Object.keys(lists || {});
+      if(!keys.length){ if(empty) empty.style.display = 'block'; return; }
+      if(empty) empty.style.display = 'none';
+      keys.forEach(k=>{
+        const l = lists[k];
+        const card = document.createElement('div');
+        card.style.minWidth = '220px'; card.style.maxWidth = '260px'; card.style.background='#fff'; card.style.padding='10px'; card.style.borderRadius='10px'; card.style.boxShadow='0 8px 20px rgba(0,0,0,0.06)';
+        // include description preview and make card clickable to open detail view
+        const descHtml = l.description ? `<div style="color:#666;font-size:13px;margin-bottom:8px">${l.description}</div>` : '';
+  card.innerHTML = `<h4 style="margin:0 0 6px 0">${l.name}</h4>${descHtml}<div style="display:flex;flex-direction:column;gap:6px; max-height:180px; overflow:auto" data-list-id="${l.id}"></div><div style="display:flex;gap:6px;justify-content:flex-end;margin-top:8px"><button data-list-id="${l.id}" class="export-list" style="padding:6px;border-radius:8px;border:none;background:#eee;cursor:pointer">Exportar</button><button data-list-id="${l.id}" class="edit-list" style="padding:6px;border-radius:8px;border:none;background:#ffd54f;cursor:pointer">Editar</button><button data-list-id="${l.id}" class="delete-list" style="padding:6px;border-radius:8px;border:none;background:#e53935;color:#fff;cursor:pointer">Excluir</button></div>`;
+        container.appendChild(card);
+        // clicking the card (outside buttons) opens detail view
+        card.addEventListener('click', ()=> showListDetail(l.id));
+        const itemsWrap = card.querySelector('div');
+        (l.items||[]).forEach(it=>{
+          const row = document.createElement('div');
+          row.style.display='flex'; row.style.alignItems='center'; row.style.gap='8px'; row.style.padding='4px 0';
+          row.innerHTML = `<img src="${it.img}" alt="${it.name}" style="width:36px;height:36px;object-fit:contain;border-radius:6px"><div style="flex:1;text-align:left">${it.name}</div><button data-list-id="${l.id}" data-poke-id="${it.id}" class="remove-from-list" style="background:#e53935;color:#fff;border:none;padding:6px 8px;border-radius:6px;cursor:pointer">Remover</button>`;
+          itemsWrap.appendChild(row);
+        });
+      });
+      // attach handlers for remove/export
+  document.querySelectorAll('.remove-from-list').forEach(b=> b.addEventListener('click', (e)=>{ e.stopPropagation(); const lid=b.dataset.listId; const pid=b.dataset.pokeId; removePokemonFromList(lid,pid); }));
+  document.querySelectorAll('.export-list').forEach(b=> b.addEventListener('click', (e)=>{ e.stopPropagation(); const lid=b.dataset.listId; const data = lists[lid]; if(!data) return; const txt = JSON.stringify(data, null, 2); window.open('data:application/json;charset=utf-8,' + encodeURIComponent(txt)); }));
+  // edit list
+  document.querySelectorAll('.edit-list').forEach(b=> b.addEventListener('click', (e)=>{ e.stopPropagation(); const lid=b.dataset.listId; const l = lists[lid]; if(!l) return; const newName = prompt('Novo nome da lista', l.name); if(newName === null) return; const newDesc = prompt('Nova descrição (opcional)', l.description || ''); editList(lid, newName, newDesc); }));
+  // delete list with confirmation
+  document.querySelectorAll('.delete-list').forEach(b=> b.addEventListener('click', (e)=>{ e.stopPropagation(); const lid=b.dataset.listId; const l = lists[lid]; if(!l) return; const ok = confirm(`Excluir lista "${l.name}"? Esta ação não pode ser desfeita.`); if(!ok) return; delete lists[lid]; saveLists(); }));
+    }
+
+    function editList(listId, name, description){
+      if(!lists[listId]) return;
+      lists[listId].name = name && name.trim() ? name.trim() : lists[listId].name;
+      lists[listId].description = description ? description.trim() : '';
+      saveLists();
+    }
+
+    // create-list form hookup
+    (function setupListForm(){
+      const btn = document.getElementById('create-list-btn');
+      const input = document.getElementById('new-list-name');
+      const desc = document.getElementById('new-list-desc');
+      if(!btn || !input) return;
+      btn.addEventListener('click', ()=>{ const v = input.value; const d = desc ? desc.value : ''; if(!v || !v.trim()) return; createList(v,d); input.value=''; if(desc) desc.value=''; });
+    })();
+
+    // utility: populate modal lists dropdown (used by showModal below) - returns select element
+    function populateModalLists(selectEl){
+      if(!selectEl) return;
+      selectEl.innerHTML = '';
+      const keys = Object.keys(lists||{});
+      if(!keys.length){ const opt=document.createElement('option'); opt.value=''; opt.textContent='(Nenhuma lista)'; selectEl.appendChild(opt); return; }
+      const placeholder = document.createElement('option'); placeholder.value=''; placeholder.textContent='Escolha uma lista...'; selectEl.appendChild(placeholder);
+      keys.forEach(k=>{ const opt=document.createElement('option'); opt.value = k; opt.textContent = lists[k].name; selectEl.appendChild(opt); });
+    }
+
+    // show a detailed view for a list (replace lists container with detail view)
+    function showListDetail(listId){
+      const list = lists[listId];
+      if(!list) return;
+      const listsSection = document.getElementById('lists');
+      const container = document.getElementById('lists-container');
+      if(!listsSection || !container) return;
+      // create detail wrapper
+      const prev = document.getElementById('list-detail');
+      if(prev) prev.remove();
+      const detail = document.createElement('div');
+      detail.id = 'list-detail';
+      detail.style.maxWidth = '900px'; detail.style.margin = '0 auto 40px auto'; detail.style.background = '#fff'; detail.style.padding='18px'; detail.style.borderRadius='12px'; detail.style.boxShadow='0 12px 32px rgba(0,0,0,0.06)';
+      detail.innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <div>
+            <h3 style="margin:0">${list.name}</h3>
+            <div style="color:#666;margin-top:6px">${list.description || '<em>Sem descrição</em>'}</div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <button id="back-to-lists" style="padding:8px 10px;border-radius:8px;border:none;background:#eee;cursor:pointer">Voltar</button>
+            <button id="export-detail" style="padding:8px 10px;border-radius:8px;border:none;background:#eee;cursor:pointer">Exportar</button>
+          </div>
+        </div>
+        <div id="list-items" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px"></div>
+      `;
+      listsSection.insertBefore(detail, listsSection.firstChild);
+      // hide lists container for clarity
+      container.style.display = 'none';
+      // populate items
+      const itemsWrap = detail.querySelector('#list-items');
+      (list.items || []).forEach(it =>{
+        const c = document.createElement('div');
+        c.style.background='#fafafa'; c.style.padding='10px'; c.style.borderRadius='10px'; c.style.textAlign='center'; c.style.boxShadow='0 6px 18px rgba(0,0,0,0.04)';
+        c.innerHTML = `<img src="${it.img}" alt="${it.name}" style="width:96px;height:96px;object-fit:contain"><div style="font-weight:700;margin-top:8px">${it.name}</div><div style="margin-top:8px"><button data-list-id="${list.id}" data-poke-id="${it.id}" class="remove-from-list-detail" style="background:#e53935;color:#fff;border:none;padding:6px 8px;border-radius:6px;cursor:pointer">Remover</button></div>`;
+        itemsWrap.appendChild(c);
+      });
+      // handlers
+      detail.querySelector('#back-to-lists').addEventListener('click', ()=>{ detail.remove(); container.style.display='flex'; renderLists(); });
+      detail.querySelector('#export-detail').addEventListener('click', ()=>{ const txt = JSON.stringify(list, null, 2); window.open('data:application/json;charset=utf-8,' + encodeURIComponent(txt)); });
+      // delete list from detail view with confirmation
+      const delBtn = document.createElement('button'); delBtn.textContent = 'Excluir lista'; delBtn.style.marginLeft='8px'; delBtn.style.padding='8px'; delBtn.style.border='none'; delBtn.style.borderRadius='8px'; delBtn.style.background='#e53935'; delBtn.style.color='#fff'; delBtn.style.cursor='pointer';
+      detail.querySelector('div > div').appendChild(delBtn);
+      delBtn.addEventListener('click', ()=>{
+        const ok = confirm(`Excluir lista "${list.name}"? Esta ação não pode ser desfeita.`);
+        if(!ok) return;
+        delete lists[list.id]; saveLists(); detail.remove(); container.style.display='flex';
+      });
+      // remove buttons
+      detail.querySelectorAll('.remove-from-list-detail').forEach(b=> b.addEventListener('click', (e)=>{ const lid=b.dataset.listId; const pid=b.dataset.pokeId; removePokemonFromList(lid,pid); // re-render detail
+        showListDetail(lid);
+      }));
+    }
+
+    // initialize lists from storage on DOM ready
+    document.addEventListener('DOMContentLoaded', ()=>{ loadLists(); });
+
+    function prettifyAbility(name) {
+      const map = { 'overgrow':'Overgrow', 'blaze':'Blaze', 'torrent':'Torrent', 'shield-dust':'Pó Protetor',
+        'run-away':'Fuga', 'intimidate':'Intimidação', 'keen-eye':'Visão Aguçada' };
+      if (map[name]) return map[name];
+      return name.split(/[-_ ]+/).map(w => w.charAt(0).toUpperCase()+w.slice(1)).join(' ');
+    }
+
+    // Paginação em lotes
+    const BATCH_SIZE = 24; // quantos pokémons por lote
+    let offset = 0;
+    let totalCount = null;
+    let loadingBatch = false;
+    const loadMoreBtn = document.getElementById('load-more');
+
+    async function carregarPokemons(){
+      // reset view and load first batch
+      container.innerHTML = '';
+      offset = 0;
+      totalCount = null;
+      if(loadMoreBtn) loadMoreBtn.style.display = 'inline-block';
+      await loadBatch();
+    }
+
+    async function loadBatch(){
+      if(loadingBatch) return;
+      loadingBatch = true;
+      showSpinner();
+      if(loadMoreBtn){ loadMoreBtn.disabled = true; loadMoreBtn.textContent = 'Carregando...'; }
+      try{
+        const res = await fetch(`https://pokeapi.co/api/v2/pokemon?limit=${BATCH_SIZE}&offset=${offset}`);
+        if(!res.ok) throw new Error('Erro ao listar pokémons');
+        const data = await res.json();
+        totalCount = data.count;
+        // buscar detalhes em paralelo (limitado pelo tamanho do lote)
+        const details = await Promise.all(data.results.map(r=> fetch(r.url).then(resp=>resp.json())));
+        details.forEach(d => criarCard(d));
+        offset += BATCH_SIZE;
+        // esconder botão se já carregou tudo
+        if(offset >= totalCount){ if(loadMoreBtn) { loadMoreBtn.style.display='none'; } }
+        else { if(loadMoreBtn) { loadMoreBtn.style.display='inline-block'; loadMoreBtn.disabled=false; loadMoreBtn.textContent='Mostrar mais'; } }
+      } catch(err){
+        if(container) container.insertAdjacentHTML('beforeend', '<p style="text-align:center;color:red;">Erro ao carregar pokémons.</p>');
+        if(loadMoreBtn) { loadMoreBtn.style.display='none'; }
+      } finally{
+        loadingBatch = false;
+        if(loadMoreBtn && loadMoreBtn.disabled) loadMoreBtn.disabled = false;
+        hideSpinner();
+      }
+    }
+
+    // setup do botão Mostrar mais
+    if(loadMoreBtn){
+      loadMoreBtn.addEventListener('click', ()=>{ loadBatch(); });
+    }
+
+    // accessible search: submit form triggers buscarPokemon
+    const searchForm = document.getElementById('search-form');
+    if(searchForm){
+      searchForm.addEventListener('submit', (e)=>{ e.preventDefault(); buscarPokemon(); });
+    }
+
+    function criarCard(pokeData) {
+      // pokeData may be full details or a minimal summary
+      const card = document.createElement("article");
+      card.classList.add("pokemon-card");
+      card.setAttribute('role','button');
+      card.tabIndex = 0;
+      const imgInfo = getPokemonImage(pokeData);
+      const imgSrc = imgInfo.url;
+      const typesHtml = (pokeData.types || []).map(t => {
+        const name = typeof t === 'string' ? t : (t.type && t.type.name) || t;
+        return `<span class="type" style="background:${getTypeColor(name)}">${typeNamePT(name)}</span>`;
+      }).join('');
+      card.innerHTML = `
+        <button class="fav-btn" data-id="${pokeData.id}" aria-label="Favoritar">${isFavorite(String(pokeData.id)) ? '❤️' : '🤍'}</button>
+        <img src="${imgSrc}" alt="${pokeData.name}">
+        <h3 style="text-transform:capitalize">${pokeData.name}</h3>
+        <p>ID: ${pokeData.id}</p>
+        <div class="type-badges">${typesHtml}</div>
+      `;
+      // favorite button handler (stop propagation so clicking it doesn't open modal)
+      const favBtn = card.querySelector('.fav-btn');
+      favBtn.addEventListener('click', (e)=>{ e.stopPropagation(); toggleFavoriteFromCard({ id: pokeData.id, name: pokeData.name, img: imgSrc, types: (pokeData.types || []).map(t => typeof t === 'string' ? t : (t.type && t.type.name) || t) }); });
+      // attach onerror fallback chain for the image
+      const imgEl = card.querySelector('img');
+      if(imgEl && imgInfo.fallbacks && imgInfo.fallbacks.length){
+        imgEl.dataset.fallbacks = JSON.stringify(imgInfo.fallbacks);
+        imgEl.addEventListener('error', function onErr(){
+          try{
+            const list = JSON.parse(this.dataset.fallbacks || '[]');
+            if(list && list.length){
+              const next = list.shift();
+              this.dataset.fallbacks = JSON.stringify(list);
+              this.src = next;
+            } else {
+              this.removeEventListener('error', onErr);
+              this.src = 'pokemon.png';
+            }
+          }catch(e){ this.src = 'pokemon.png'; }
+        });
+      }
+      // click/keyboard opens modal; if card lacks full stats, fetch details first
+      async function openDetails(){
+        if(!pokeData.stats){
+          try{ const resp = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokeData.id}`); if(resp.ok){ const full = await resp.json(); showModal(full); } else { showModal(pokeData); } }
+          catch(err){ showModal(pokeData); }
+        } else showModal(pokeData);
+      }
+      card.addEventListener('click', openDetails);
+      card.addEventListener('keydown', (e)=>{ if(e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openDetails(); } });
+      container.appendChild(card);
+      updateFavButtons();
+    }
+
+    async function buscarPokemon() {
+      const input = document.getElementById("search-input").value.toLowerCase().trim();
+
+      if (input === "") {
+        carregarPokemons(); 
+        return;
+      }
+
+      try {
+        showSpinner();
+        const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${input}`);
+        if (!response.ok) throw new Error("Pokémon não encontrado");
+        
+        const pokeData = await response.json();
+        container.innerHTML = ""; 
+          criarCard(pokeData);
+          // quando é resultado de busca, esconder botão "Mostrar mais"
+          const loadMoreBtnLocal = document.getElementById('load-more');
+          if(loadMoreBtnLocal) loadMoreBtnLocal.style.display = 'none';
+
+      } catch (error) {
+        container.innerHTML = `<p style="text-align:center; color:red;">Pokémon não encontrado!</p>`;
+      } finally {
+        hideSpinner();
+      }
+    }
+
+    // Type colors used for badges
+    function getTypeColor(name){
+      const colors = { fire:'#F08030', water:'#6890F0', grass:'#78C850', electric:'#F8D030',
+        poison:'#A040A0', rock:'#B8A038', ground:'#E0C068', bug:'#A8B820',
+        dragon:'#7038F8', psychic:'#F85888', fairy:'#EE99AC', fighting:'#C03028',
+        normal:'#A8A878', ghost:'#705898', steel:'#B8B8D0', ice:'#98D8D8', flying:'#A890F0', dark:'#705848'};
+      return colors[name] || '#666';
+    }
+
+    // Robust image selection with multiple fallbacks and a reliable placeholder
+    function getPokemonImage(poke){
+      try{
+        const id = poke && (poke.id || (poke.url && poke.url.split('/').filter(Boolean).pop()));
+        const s = poke && poke.sprites ? poke.sprites : {};
+        const other = s.other || {};
+        const candidates = [];
+        if(other['official-artwork'] && other['official-artwork'].front_default) candidates.push(other['official-artwork'].front_default);
+        if(other.home && other.home.front_default) candidates.push(other.home.front_default);
+        if(other['dream_world'] && other['dream_world'].front_default) candidates.push(other['dream_world'].front_default);
+        if(s.front_default) candidates.push(s.front_default);
+        if(poke && poke.img) candidates.push(poke.img);
+        if(id){
+          candidates.push(`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`);
+          candidates.push(`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`);
+        }
+        candidates.push('pokemon.png');
+        return { url: candidates[0], fallbacks: candidates.slice(1) };
+      }catch(e){ return { url: 'pokemon.png', fallbacks: [] }; }
+    }
+
+    // animate numbers from start to end in given duration (ms)
+    function animateNumber(el, start, end, duration){
+      const startTime = performance.now();
+      const step = (now)=>{
+        const t = Math.min(1, (now - startTime) / duration);
+        const eased = t<0.5 ? 2*t*t : -1 + (4-2*t)*t; // easeInOut approx
+        const value = Math.round(start + (end - start) * eased);
+        el.textContent = value;
+        if(t < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    }
+
+    // Spinner control with reference counting to support nested calls
+    let _spinnerRef = 0;
+    function showSpinner(){
+      _spinnerRef = Math.max(0, _spinnerRef) + 1;
+      const el = document.getElementById('global-spinner');
+      if(el){ el.classList.remove('hidden'); el.setAttribute('aria-hidden','false'); }
+    }
+    function hideSpinner(){
+      _spinnerRef = Math.max(0, _spinnerRef - 1);
+      if(_spinnerRef <= 0){ const el = document.getElementById('global-spinner'); if(el){ el.classList.add('hidden'); el.setAttribute('aria-hidden','true'); } _spinnerRef = 0; }
+    }
+
+    // modal control
+    (function setupModal(){
+      if(!modalOverlay) return;
+      modalOverlay.addEventListener('click', e => { if(e.target === modalOverlay || e.target.classList.contains('close-btn')) closeModal(); });
+      function closeModal(){ modalOverlay.classList.remove('show'); modalOverlay.setAttribute('aria-hidden','true'); }
+      window._closeModal = closeModal;
+    })();
+
+    function showModal(poke){
+      if(!modalOverlay) return;
+      const imgEl = modalOverlay.querySelector('.modal-left img');
+      const nameEl = modalOverlay.querySelector('.modal-right h3');
+      const badgesEl = modalOverlay.querySelector('.modal-right .type-badges');
+      const statsEl = modalOverlay.querySelector('.modal-right .stats');
+      const abilitiesEl = modalOverlay.querySelector('.modal-right .abilities');
+      const imgInfo = getPokemonImage(poke);
+      imgEl.src = imgInfo.url; imgEl.alt = poke.name;
+      if(imgInfo.fallbacks && imgInfo.fallbacks.length){ imgEl.dataset.fallbacks = JSON.stringify(imgInfo.fallbacks); imgEl.addEventListener('error', function onModalErr(){ try{ const list = JSON.parse(this.dataset.fallbacks||'[]'); if(list && list.length){ const next = list.shift(); this.dataset.fallbacks = JSON.stringify(list); this.src = next; } else { this.removeEventListener('error', onModalErr); this.src = 'pokemon.png'; } }catch(e){ this.src='pokemon.png'; } }); }
+      nameEl.textContent = `${poke.name.charAt(0).toUpperCase()+poke.name.slice(1)}  #${poke.id}`;
+      badgesEl.innerHTML = (poke.types || []).map(t=> `<span class="type" style="background:${getTypeColor(t.type.name)}">${typeNamePT(t.type.name)}</span>`).join('');
+      // stats Portuguese labels
+      const statNames = { 'hp':'Vida', 'attack':'Ataque', 'defense':'Defesa', 'speed':'Velocidade', 'special-attack':'Ataque Especial', 'special-defense':'Defesa Especial' };
+      statsEl.innerHTML = '';
+      // create animated bars for each stat
+      (poke.stats || []).forEach((s, idx)=>{
+        const row = document.createElement('div'); row.className = 'stat-row';
+        const label = document.createElement('div'); label.className='stat-label'; label.textContent = statNames[s.stat.name] || s.stat.name.toUpperCase();
+        const barWrap = document.createElement('div'); barWrap.className='bar';
+        const fill = document.createElement('div'); fill.className='bar-fill';
+        fill.style.width = '0%';
+        fill.setAttribute('aria-valuenow', '0');
+        barWrap.appendChild(fill);
+        const val = document.createElement('div'); val.className='bar-value'; val.textContent = '0';
+        row.appendChild(label); row.appendChild(barWrap); row.appendChild(val);
+        statsEl.appendChild(row);
+        // animate with slight stagger
+        const percent = Math.round((s.base_stat / 255) * 100);
+          setTimeout(()=>{ fill.style.width = percent + '%'; fill.setAttribute('aria-valuenow', s.base_stat); animateNumber(val, 0, s.base_stat, 900); }, 120 * idx + 80);
+      });
+      const habilidadesTraduzidas = (poke.abilities||[]).map(a=> prettifyAbility(a.ability.name)).join(', ');
+  abilitiesEl.innerHTML = `<strong>Habilidades:</strong> ${habilidadesTraduzidas}`;
+  // add favorite control inside modal
+  let favControl = modalOverlay.querySelector('.modal-right .fav-modal-btn');
+  if(!favControl){ favControl = document.createElement('button'); favControl.className = 'fav-modal-btn'; favControl.style.marginTop='10px'; favControl.style.padding='8px 10px'; favControl.style.borderRadius='8px'; favControl.style.border='none'; favControl.style.cursor='pointer'; modalOverlay.querySelector('.modal-right').appendChild(favControl); }
+  // ensure imgUrl for saving into favorites
+  const imgUrlForSave = imgInfo && imgInfo.url ? imgInfo.url : 'pokemon.png';
+  favControl.textContent = isFavorite(String(poke.id)) ? 'Remover dos Favoritos ❤️' : 'Adicionar aos Favoritos 🤍';
+  favControl.onclick = (e)=>{ e.stopPropagation(); toggleFavoriteFromCard({ id: poke.id, name: poke.name, img: imgUrlForSave, types: (poke.types||[]).map(t=> t.type?.name || t) }); favControl.textContent = isFavorite(String(poke.id)) ? 'Remover dos Favoritos ❤️' : 'Adicionar aos Favoritos 🤍'; };
+
+  // List controls in modal: select existing lists and add button
+  let listControls = modalOverlay.querySelector('.modal-right .list-controls');
+  if(!listControls){
+    listControls = document.createElement('div');
+    listControls.className = 'list-controls';
+    listControls.style.marginTop = '10px';
+    listControls.innerHTML = `
+      <label style="display:block;font-weight:700;margin-bottom:6px">Adicionar à lista</label>
+      <div style="display:flex;gap:8px;align-items:center">
+        <select id="modal-list-select" style="padding:6px;border-radius:8px;border:1px solid #ccc"></select>
+        <button id="add-to-list-btn" style="background:#1976d2;color:#fff;border:none;padding:6px 10px;border-radius:8px;cursor:pointer;font-weight:700">Adicionar</button>
+        <span id="add-list-feedback" style="margin-left:8px;color:#2e7d32;display:none;font-weight:700"></span>
+      </div>
+    `;
+    modalOverlay.querySelector('.modal-right').appendChild(listControls);
+  }
+  const selectEl = modalOverlay.querySelector('#modal-list-select');
+  const addBtn = modalOverlay.querySelector('#add-to-list-btn');
+  const feedback = modalOverlay.querySelector('#add-list-feedback');
+  populateModalLists(selectEl);
+  // disable add button if there are no lists; if there are none, show an inline create form to create and add
+  const hasLists = Object.keys(lists||{}).length > 0;
+  let modalCreateForm = modalOverlay.querySelector('.modal-right .modal-create-list');
+  if(!hasLists){
+    addBtn.disabled = true; addBtn.style.opacity = '0.6';
+    if(!modalCreateForm){
+      modalCreateForm = document.createElement('div');
+      modalCreateForm.className = 'modal-create-list';
+      modalCreateForm.style.marginTop = '8px';
+      modalCreateForm.innerHTML = `
+        <div style="margin-top:8px;font-size:13px;color:#444">Nenhuma lista encontrada. Crie uma lista e adicione este Pokémon:</div>
+        <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;align-items:center">
+          <input id="modal-new-list-name" placeholder="Nome da lista" style="padding:6px;border-radius:8px;border:1px solid #ccc" />
+          <input id="modal-new-list-desc" placeholder="Descrição (opcional)" style="padding:6px;border-radius:8px;border:1px solid #ccc;width:240px" />
+          <button id="modal-create-and-add" style="background:#1976d2;color:#fff;border:none;padding:6px 10px;border-radius:8px;cursor:pointer;font-weight:700">Criar e adicionar</button>
+        </div>
+        <div id="modal-create-feedback" style="margin-top:8px;color:#2e7d32;display:none;font-weight:700"></div>
+      `;
+      modalOverlay.querySelector('.modal-right').appendChild(modalCreateForm);
+      const createBtn = modalCreateForm.querySelector('#modal-create-and-add');
+      const nameInput = modalCreateForm.querySelector('#modal-new-list-name');
+      const descInput = modalCreateForm.querySelector('#modal-new-list-desc');
+      const createFeedback = modalCreateForm.querySelector('#modal-create-feedback');
+      createBtn.addEventListener('click', (ev)=>{
+        ev.stopPropagation();
+        const nm = nameInput.value && nameInput.value.trim();
+        const dsc = descInput.value && descInput.value.trim();
+        if(!nm){ createFeedback.style.display='inline-block'; createFeedback.style.color='#c62828'; createFeedback.textContent='Nome obrigatório'; setTimeout(()=>createFeedback.style.display='none',1200); return; }
+        const newList = createList(nm, dsc);
+        if(newList){
+          // add poke to that list
+          addPokemonToList(newList.id, poke);
+          createFeedback.style.display='inline-block'; createFeedback.style.color='#2e7d32'; createFeedback.textContent='Criada e adicionada ✓';
+          // refresh modal select and enable add button
+          populateModalLists(selectEl);
+          addBtn.disabled = false; addBtn.style.opacity = '1';
+          // clear inputs
+          nameInput.value=''; descInput.value='';
+          setTimeout(()=>{ createFeedback.style.display='none'; }, 1200);
+        }
+      });
+    }
+  } else {
+    if(modalCreateForm) modalCreateForm.remove();
+    addBtn.disabled = false; addBtn.style.opacity = '1';
+  }
+
+  addBtn.onclick = (e)=>{
+    e.stopPropagation();
+    const listId = selectEl.value;
+    if(!listId){ feedback.style.display='inline-block'; feedback.style.color='#c62828'; feedback.textContent = 'Selecione uma lista'; setTimeout(()=>feedback.style.display='none',1200); return; }
+    addPokemonToList(listId, poke);
+    feedback.style.display='inline-block'; feedback.style.color='#2e7d32'; feedback.textContent = 'Adicionado ✓';
+    setTimeout(()=>{ feedback.style.display='none'; }, 1200);
+  };
+      modalOverlay.classList.add('show'); modalOverlay.setAttribute('aria-hidden','false');
+    }
+
+    // nav link active (letra fica vermelha ao clicar)
+    (function setupNavActive(){
+      const links = document.querySelectorAll('.nav-links a');
+      links.forEach(a=> a.addEventListener('click', (e)=>{
+        // set active class (visual). If link is external navigation, browser will navigate.
+        links.forEach(x=>x.classList.remove('active'));
+        e.currentTarget.classList.add('active');
+      }));
+    })();
+
+    // If the page was opened with a request to show favorites (hash or ?view=favorites), show that view.
+    (function initialLoad(){
+      const params = new URLSearchParams(window.location.search);
+      const wantFavs = window.location.hash === '#favorites' || params.get('view') === 'favorites';
+      if(wantFavs){
+        // ensure badge/count is updated then show favorites
+        updateFavBadge();
+        showFavoritesView();
+      } else {
+        carregarPokemons();
+      }
+    })();
+
+    /* --- Type filters: fetch available types and allow filtering by type --- */
+    async function loadTypeFilters(){
+      const container = document.getElementById('type-filters');
+      if(!container) return;
+      try{
+        const res = await fetch('https://pokeapi.co/api/v2/type');
+        if(!res.ok) return;
+        const data = await res.json();
+        // filter out non-game types if present (shadow, unknown)
+        const types = (data.results || []).filter(t => !['shadow','unknown'].includes(t.name));
+        types.forEach(t => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'filter-type-btn';
+          btn.dataset.type = t.name;
+          btn.style.background = getTypeColor(t.name);
+          btn.textContent = typeNamePT(t.name);
+          btn.addEventListener('click', () => applyTypeFilter(t.name));
+          container.appendChild(btn);
+        });
+      }catch(e){ /* ignore failures silently */ }
+    }
+
+    async function applyTypeFilter(typeName){
+      // UI: mark active button
+      document.querySelectorAll('.filter-type-btn').forEach(b => b.classList.toggle('active', b.dataset.type === typeName));
+      const clearBtn = document.getElementById('clear-type-filter');
+      if(clearBtn) clearBtn.style.display = 'inline-block';
+      // hide load more while filtered
+      if(loadMoreBtn) loadMoreBtn.style.display = 'none';
+      container.innerHTML = `<p style="text-align:center;color:#666">Carregando pokémons do tipo ${typeNamePT(typeName)}...</p>`;
+      try{
+        showSpinner();
+        const res = await fetch(`https://pokeapi.co/api/v2/type/${typeName}`);
+        if(!res.ok) throw new Error('Tipo não encontrado');
+        const data = await res.json();
+        const poks = (data.pokemon || []).map(p=>p.pokemon).filter(Boolean);
+        // fetch details in batches to avoid too many concurrent requests
+        await fetchPokemonListInBatches(poks);
+      }catch(err){
+        container.innerHTML = `<p style="text-align:center;color:red">Erro ao carregar pokémons do tipo ${typeNamePT(typeName)}.</p>`;
+      } finally{
+        hideSpinner();
+      }
+    }
+
+    async function fetchPokemonListInBatches(list){
+      container.innerHTML = '';
+      const BATCH = 24;
+      showSpinner();
+      for(let i=0;i<list.length;i+=BATCH){
+        const slice = list.slice(i,i+BATCH);
+        const details = await Promise.all(slice.map(p => fetch(p.url).then(r=>r.ok? r.json(): null).catch(()=>null)));
+        details.forEach(d=>{ if(d) criarCard(d); });
+        // small pause so the UI can update and not freeze the main thread
+        await new Promise(r => setTimeout(r, 80));
+      }
+      // update fav buttons after batch load
+      updateFavButtons();
+      hideSpinner();
+    }
+
+    // clear filter button
+    (function setupClearFilter(){
+      const btn = document.getElementById('clear-type-filter');
+      if(!btn) return;
+      btn.addEventListener('click', (e)=>{
+        e.preventDefault();
+        // remove active state
+        document.querySelectorAll('.filter-type-btn').forEach(b => b.classList.remove('active'));
+        btn.style.display = 'none';
+        // show normal view
+        if(loadMoreBtn) loadMoreBtn.style.display = 'inline-block';
+        carregarPokemons();
+      });
+    })();
+
+    // load filters once DOM is ready
+    document.addEventListener('DOMContentLoaded', ()=>{ loadTypeFilters(); });
+  </script>
+</body>
+</html>

@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokedéx</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Shrikhand&family=Archivo+Black&family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* Smooth scrolling for anchor/button navigation */
+        html {
+            scroll-behavior: smooth;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 40px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo img {
+            width: 50px;
+            margin-right: 8px;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 20px;
+            margin: 0;
+            padding: 0;
+        }
+
+        nav ul li a {
+    text-decoration: none;
+    color: black;
+    font-weight: 400;
+    transition: color 0.3s, transform 0.3s; /* animação suave */
+}
+
+nav ul li a:hover {
+    color: #a52a2a;      
+    transform: scale(1.2);
+}
+
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: #ddd;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .search-box input {
+            border: none;
+            background: none;
+            outline: none;
+            padding: 4px;
+        }
+
+        .search-box button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            color: #a00;
+        }
+
+        main {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 40px;
+        }
+
+        .text-section h1 {
+            font-family: 'Shrikhand', cursive;
+            color: #951c1c;
+            font-size: 48px;
+            line-height: 1.2;
+            margin-bottom: 10px;
+        }
+
+        .text-section p {
+            font-size: 16px;
+            margin-bottom: 20px;
+            max-width: 350px;
+        }
+
+        .btn {
+            background: #a52a2a;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn:hover {
+            background: #5e1414;
+        }
+
+        .image-section img {
+            width: 420px; 
+            opacity: 0;              
+            transform: translateY(50px); 
+            transition: transform 2s ease-out, opacity 2s ease-out; 
+        }
+        /* Pokemons section styles */
+        .pokemons-section {
+            padding: 60px 20px;
+            background: #a52a2a; /* fundo vermelho */
+            color: #fff;
+        }
+
+        .pokemons-section h2 {
+            text-align: center;
+            margin-bottom: 24px;
+            color: #fff;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+            color: #333;
+            cursor: pointer;
+            transition: transform 0.18s ease, box-shadow 0.18s ease;
+        }
+
+        .card img { width: 120px; }
+        .card:hover { transform: translateY(-6px); box-shadow: 0 8px 22px rgba(0,0,0,0.18); }
+
+        .type-badges { display:flex; gap:6px; justify-content:center; margin-top:8px; flex-wrap:wrap }
+        .type { padding:4px 8px; border-radius:12px; font-size:12px; color:#fff; font-weight:700; text-transform:capitalize }
+
+        .modal-overlay { position: fixed; inset:0; background: rgba(0,0,0,0.6); display:none; align-items:center; justify-content:center; z-index:1200 }
+        .modal-overlay.show { display:flex }
+        /* Modal compacto: largura reduzida e conteúdo que encolhe corretamente */
+        .modal-content { background:#fff; border-radius:12px; padding:14px; max-width:560px; width:min(94%,560px); color:#222; box-shadow:0 12px 40px rgba(0,0,0,0.28); display:flex; gap:12px; align-items:flex-start; box-sizing:border-box }
+        .modal-left img{ width:140px; height:auto; display:block }
+        .modal-right{ flex:1; min-width:0 } /* allow content to shrink on small widths */
+        .modal-right h3{ margin:0 0 6px 0 }
+    .stats { display:flex; flex-direction:column; gap:8px; margin-top:12px; min-width:0 }
+    .stat-row{ display:flex; gap:8px; align-items:center }
+    .stat-label{ width:100px; min-width:0; font-weight:600; font-size:13px; color:#333 }
+    .bar{ flex:1; background:#eee; height:12px; border-radius:10px; overflow:hidden; position:relative }
+    .bar-fill{ height:100%; width:0%; background: linear-gradient(90deg,#ff6b6b,#ff3b3b); border-radius:10px; transition:width .9s cubic-bezier(.2,.9,.2,1) }
+    .bar-value{ margin-left:8px; width:40px; text-align:right; font-weight:700; color:#222 }
+
+    /* Mobile: empilhar conteúdo e ajustar imagem para evitar muito espaço vazio */
+    @media (max-width:600px){
+        .modal-content{ flex-direction:column; align-items:center; padding:12px; gap:10px }
+        .modal-left img{ width:160px }
+        .stat-label{ width:90px; font-size:12px }
+        .bar-value{ width:36px; font-size:13px }
+    }
+        .abilities { margin-top:8px }
+        .close-btn { position:absolute; right:18px; top:12px; background:transparent; border:none; font-size:20px; cursor:pointer }
+        .load-more-bar {
+            position: fixed;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: 24px;
+            background: #fff;
+            color: #a52a2a;
+            border-radius: 28px;
+            padding: 10px 18px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+            display: none;
+            z-index: 999;
+            cursor: pointer;
+            font-weight: 700;
+        }
+        .load-more-bar.show { display: block; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">
+            <img src="pokebola.png" alt="Logo Pokédex">
+            <h2>Pokédex</h2>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="#">Início</a></li>
+                <li><a href="pokedex.html">Pokedéx</a></li>
+                <li><a href="pokedex.html#favorites" id="index-fav-link">Favoritos</a></li>
+                <li><a href="listas.html">Listas</a></li>
+            </ul>
+        </nav>
+        <div class="search-box">
+            <input type="text" placeholder="Buscar...">
+            <button>🔍</button>
+        </div>
+    </header>
+
+    <main>
+        <div class="text-section">
+            <h1>Busque seu<br>Pokemon favorito!</h1>
+            <p>Pesquise, salve e crie sua lista de Pokémon favoritos para nunca perder de vista.</p>
+            <button id="start-search" class="btn">Comece a busca</button>
+        </div>
+        
+        <div class="image-section">
+            <!-- imagem enviada pelo usuário: 'pokemons.png' na mesma pasta -->
+            <img src="pokemons.png" alt="Banner de Pokémons">
+        </div>
+    </main>
+
+        <script>
+            // update favorites count in the Index nav if any
+            (function(){
+                try{
+                    const favLink = document.getElementById('index-fav-link');
+                    if(!favLink) return;
+                    const raw = localStorage.getItem('pokedex_favorites_v1');
+                    const favs = raw ? JSON.parse(raw) : {};
+                    const count = Object.keys(favs).length;
+                    if(count) favLink.textContent = `Favoritos (${count})`;
+                }catch(e){ /* ignore */ }
+            })();
+        </script>
+
+    <!-- Seção alvo para os pokémons; o botão "Comece a busca" rola até aqui -->
+    <section id="pokemons" class="pokemons-section" aria-label="Lista de Pokémons">
+        <h2>Explore alguns Pokémons</h2>
+        <div class="cards">
+            <div class="card">
+                <img src="pokemon.png" alt="Pokémon exemplo">
+                <h3>Pikachu</h3>
+            </div>
+            <div class="card">
+                <img src="pokemon.png" alt="Pokémon exemplo">
+                <h3>Charmander</h3>
+            </div>
+            <div class="card">
+                <img src="pokemon.png" alt="Pokémon exemplo">
+                <h3>Squirtle</h3>
+            </div>
+            <div class="card">
+                <img src="pokemon.png" alt="Pokémon exemplo">
+                <h3>Bulbasaur</h3>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        const img = document.querySelector('.image-section img');
+
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                img.style.transform = 'translateY(0)'; 
+                img.style.opacity = '1';              
+            }, 50);
+        });
+
+        // animate numbers helper (vanilla JS, no frameworks)
+        function animateNumber(el, start, end, duration){
+            const startTime = performance.now();
+            const step = (now)=>{
+                const t = Math.min(1, (now - startTime) / duration);
+                const eased = t<0.5 ? 2*t*t : -1 + (4-2*t)*t; // easeInOut approx
+                const value = Math.round(start + (end - start) * eased);
+                el.textContent = value;
+                if(t < 1) requestAnimationFrame(step);
+            };
+            requestAnimationFrame(step);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const btn = document.getElementById('start-search');
+            const target = document.getElementById('pokemons');
+            if (!btn || !target) return;
+
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const header = document.querySelector('header');
+                const headerHeight = header ? header.offsetHeight : 0;
+                const y = target.getBoundingClientRect().top + window.pageYOffset - headerHeight - 10;
+                window.scrollTo({ top: y, behavior: 'smooth' });
+                // for accessibility, move focus to section
+                target.setAttribute('tabindex', '-1');
+                target.focus({ preventScroll: true });
+            });
+            // carregar pokemons na seção quando a página estiver pronta
+            carregarPokemons();
+        });
+        let loadingBatch = false; // prevents concurrent batch loads
+
+        const POKEMON_LIMIT = 151; // total to consider
+        const BATCH_SIZE = 36; // how many to load per batch
+        let pokemonList = []; // stores {name,url}
+        let loadedCount = 0;
+        const typeColors = {
+            fire:'#F08030', water:'#6890F0', grass:'#78C850', electric:'#F8D030',
+            poison:'#A040A0', rock:'#B8A038', ground:'#E0C068', bug:'#A8B820',
+            dragon:'#7038F8', psychic:'#F85888', fairy:'#EE99AC', fighting:'#C03028',
+            normal:'#A8A878', ghost:'#705898', steel:'#B8B8D0', ice:'#98D8D8', flying:'#A890F0'
+        };
+
+        async function carregarPokemons() {
+            const container = document.querySelector('#pokemons .cards');
+            if (!container) return;
+            container.innerHTML = '<p style="color:#fff; text-align:center; width:100%">Carregando lista de pokémons...</p>';
+            try {
+                const resp = await fetch(`https://pokeapi.co/api/v2/pokemon?limit=${POKEMON_LIMIT}`);
+                const data = await resp.json();
+                pokemonList = data.results || [];
+                container.innerHTML = '';
+                loadedCount = 0;
+                await loadBatch();
+            } catch (err) {
+                container.innerHTML = '<p style="color:#fff;text-align:center;width:100%">Erro ao carregar lista de pokémons.</p>';
+            }
+        }
+
+        async function loadBatch() {
+            const container = document.querySelector('#pokemons .cards');
+            if (!container) return;
+            const start = loadedCount;
+            const end = Math.min(loadedCount + BATCH_SIZE, pokemonList.length);
+            if (start >= end) return;
+
+            if (loadingBatch) return;
+            loadingBatch = true;
+            // show small loader
+            const loading = document.createElement('div');
+            loading.style.color = '#fff';
+            loading.style.textAlign = 'center';
+            loading.style.width = '100%';
+            loading.textContent = 'Carregando pokémons...';
+            container.appendChild(loading);
+
+            const slice = pokemonList.slice(start, end);
+            const promises = slice.map(r => fetch(r.url).then(res => res.json()).catch(() => null));
+            const details = await Promise.all(promises);
+
+            container.removeChild(loading);
+
+            details.forEach(poke => {
+                if (!poke) return;
+                const card = document.createElement('div');
+                card.className = 'card';
+                const imgSrc = (poke.sprites && poke.sprites.other && poke.sprites.other['official-artwork'] && poke.sprites.other['official-artwork'].front_default)
+                    || (poke.sprites && poke.sprites.front_default) || 'pokemon.png';
+                const typeNamePT = (name) => {
+                    const map = {
+                        fire:'Fogo', water:'Água', grass:'Grama', electric:'Elétrico',
+                        poison:'Veneno', rock:'Pedra', ground:'Terra', bug:'Inseto',
+                        dragon:'Dragão', psychic:'Psíquico', fairy:'Fada', fighting:'Lutador',
+                        normal:'Normal', ghost:'Fantasma', steel:'Aço', ice:'Gelo', flying:'Voador',
+                        dark:'Sombrio'
+                    };
+                    return map[name] || name.charAt(0).toUpperCase() + name.slice(1);
+                };
+                const typesHtml = (poke.types || []).map(t => {
+                    const color = typeColors[t.type.name] || '#666';
+                    const label = typeNamePT(t.type.name);
+                    return `<span class="type" style="background:${color}">${label}</span>`;
+                }).join('');
+
+                card.innerHTML = `
+                    <img src="${imgSrc}" alt="${poke.name}">
+                    <h3 style="text-transform:capitalize">${poke.name}</h3>
+                    <p>#${poke.id}</p>
+                    <div class="type-badges">${typesHtml}</div>
+                `;
+
+                card.addEventListener('click', () => showModal(poke, typeColors));
+                container.appendChild(card);
+            });
+
+            loadedCount = end;
+            loadingBatch = false;
+
+            // if we've loaded all, update load-more bar state (it will change to redirect)
+            updateLoadMoreText();
+        }
+
+        function updateLoadMoreText() {
+            const bar = document.querySelector('.load-more-bar');
+            if (!bar) return;
+            if (loadedCount >= pokemonList.length) {
+                bar.textContent = 'Ir para Pokédex';
+            } else {
+                bar.textContent = 'Carregar mais';
+            }
+        }
+
+        // Create modal overlay HTML once
+        (function createModal() {
+            if (document.querySelector('.modal-overlay')) return;
+            const overlay = document.createElement('div');
+            overlay.className = 'modal-overlay';
+            overlay.innerHTML = `
+                <div class="modal-content" role="dialog" aria-modal="true" aria-label="Detalhes do Pokémon">
+                    <button class="close-btn" aria-label="Fechar">✕</button>
+                    <div class="modal-left">
+                        <img src="pokemon.png" alt="pokemon">
+                    </div>
+                    <div class="modal-right">
+                        <h3>Nome</h3>
+                        <div class="type-badges"></div>
+                        <div class="stats"></div>
+                        <div class="abilities"></div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay || e.target.classList.contains('close-btn')) {
+                    closeModal();
+                }
+            });
+
+            // closeModal and focus trap helpers
+            let previouslyFocused = null;
+            function closeModal() {
+                overlay.classList.remove('show');
+                // remove any keydown handler added when opening
+                if (overlay._modalKeydown) {
+                    try { document.removeEventListener('keydown', overlay._modalKeydown); } catch(e){}
+                    overlay._modalKeydown = null;
+                }
+                if (previouslyFocused) {
+                    try { previouslyFocused.focus(); } catch(e){}
+                }
+            }
+
+            function modalKeydown(e) {
+                if (e.key === 'Escape') {
+                    closeModal();
+                    return;
+                }
+                if (e.key !== 'Tab') return;
+                const focusable = overlay.querySelectorAll('a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])');
+                if (!focusable.length) return;
+                const first = focusable[0];
+                const last = focusable[focusable.length -1];
+                if (e.shiftKey) {
+                    if (document.activeElement === first) { last.focus(); e.preventDefault(); }
+                } else {
+                    if (document.activeElement === last) { first.focus(); e.preventDefault(); }
+                }
+            }
+
+            // expose helpers for showModal to use
+            overlay._closeModal = closeModal;
+            overlay._setPreviouslyFocused = (el) => { previouslyFocused = el; };
+        })();
+
+        function showModal(poke, typeColors = {}) {
+            const overlay = document.querySelector('.modal-overlay');
+            if (!overlay) return;
+            const imgEl = overlay.querySelector('.modal-left img');
+            const nameEl = overlay.querySelector('.modal-right h3');
+            const badgesEl = overlay.querySelector('.modal-right .type-badges');
+            const statsEl = overlay.querySelector('.modal-right .stats');
+            const abilitiesEl = overlay.querySelector('.modal-right .abilities');
+
+            const imgSrc = (poke.sprites && poke.sprites.other && poke.sprites.other['official-artwork'] && poke.sprites.other['official-artwork'].front_default)
+                        || (poke.sprites && poke.sprites.front_default) || 'pokemon.png';
+
+            imgEl.src = imgSrc;
+            imgEl.alt = poke.name;
+            nameEl.textContent = `${poke.name.charAt(0).toUpperCase() + poke.name.slice(1)}  #${poke.id}`;
+
+            const typeNamePT = (name) => {
+                const map = {
+                    fire:'Fogo', water:'Água', grass:'Grama', electric:'Elétrico',
+                    poison:'Veneno', rock:'Pedra', ground:'Terra', bug:'Inseto',
+                    dragon:'Dragão', psychic:'Psíquico', fairy:'Fada', fighting:'Lutador',
+                    normal:'Normal', ghost:'Fantasma', steel:'Aço', ice:'Gelo', flying:'Voador',
+                    dark:'Sombrio'
+                };
+                return map[name] || name.charAt(0).toUpperCase() + name.slice(1);
+            };
+            badgesEl.innerHTML = (poke.types || []).map(t => {
+                const color = typeColors[t.type.name] || '#666';
+                return `<span class="type" style="background:${color}">${typeNamePT(t.type.name)}</span>`;
+            }).join('');
+
+            // stats: create animated bars (Portuguese labels)
+            const statNames = {
+                'hp':'HP', 'attack':'Ataque', 'defense':'Defesa', 'speed':'Velocidade',
+                'special-attack':'Ataque Especial', 'special-defense':'Defesa Especial'
+            };
+            statsEl.innerHTML = '';
+            (poke.stats || []).forEach((s, idx) => {
+                const row = document.createElement('div'); row.className = 'stat-row';
+                const label = document.createElement('div'); label.className = 'stat-label'; label.textContent = statNames[s.stat.name] || s.stat.name.toUpperCase();
+                const barWrap = document.createElement('div'); barWrap.className = 'bar';
+                const fill = document.createElement('div'); fill.className = 'bar-fill'; fill.style.width = '0%'; fill.setAttribute('aria-valuenow','0');
+                barWrap.appendChild(fill);
+                const val = document.createElement('div'); val.className = 'bar-value'; val.textContent = '0';
+                row.appendChild(label); row.appendChild(barWrap); row.appendChild(val);
+                statsEl.appendChild(row);
+                // animate staggered
+                const percent = Math.round((s.base_stat / 255) * 100);
+                setTimeout(()=>{ fill.style.width = percent + '%'; fill.setAttribute('aria-valuenow', s.base_stat); animateNumber(val, 0, s.base_stat, 900); }, 120 * idx + 80);
+            });
+
+            const habilidadeTexto = (poke.abilities || []).map(a => a.ability.name).join(', ');
+            // traduzir nome das habilidades para forma legível em português (prettify)
+            function traduzirHabilidade(nome) {
+                const map = {
+                    'overgrow':'Overgrow', 'blaze':'Blaze', 'torrent':'Torrent', 'shield-dust':'Pó Protetor',
+                    'run-away':'Fuga', 'intimidate':'Intimidação', 'stench':'Fedor', 'keen-eye':'Visão Aguçada',
+                    'static':'Estático', 'limber':'Flexível', 'synchronize':'Sincronizar', 'shed-skin':'Troca de Pele'
+                };
+                if (map[nome]) return map[nome];
+                // fallback: substituir '-' por espaço e capitalizar cada palavra
+                return nome.split(/[-_ ]+/).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+            }
+            const habilidadesTraduzidas = (poke.abilities || []).map(a => traduzirHabilidade(a.ability.name)).join(', ');
+            abilitiesEl.innerHTML = `<strong>Habilidades:</strong> ${habilidadesTraduzidas}`;
+            // open modal and manage focus
+            overlay._setPreviouslyFocused(document.activeElement);
+            overlay.classList.add('show');
+            const closeBtn = overlay.querySelector('.close-btn');
+            if (closeBtn) closeBtn.focus();
+            // hook modalKeydown into overlay (created earlier)
+            if (!overlay._modalKeydown) {
+                overlay._modalKeydown = function(e){
+                    if (e.key === 'Escape') { overlay._closeModal(); }
+                    if (e.key !== 'Tab') return;
+                    const focusable = overlay.querySelectorAll('a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])');
+                    if (!focusable.length) return;
+                    const first = focusable[0];
+                    const last = focusable[focusable.length -1];
+                    if (e.shiftKey) {
+                        if (document.activeElement === first) { last.focus(); e.preventDefault(); }
+                    } else {
+                        if (document.activeElement === last) { first.focus(); e.preventDefault(); }
+                    }
+                };
+                document.addEventListener('keydown', overlay._modalKeydown);
+            }
+        }
+
+        // Show a "Busque mais" button when user reaches near the bottom of the page
+        (function setupLoadMore() {
+            const bar = document.createElement('div');
+            bar.className = 'load-more-bar';
+            bar.textContent = 'Busque mais';
+            document.body.appendChild(bar);
+
+            async function checkScroll() {
+                const nearBottom = (window.innerHeight + window.pageYOffset) >= (document.body.offsetHeight - 60);
+                if (nearBottom) {
+                    bar.classList.add('show');
+                    // if near bottom and more pokemons available, auto-load next batch
+                    if (loadedCount < (pokemonList ? pokemonList.length : 0) && !loadingBatch) {
+                        await loadBatch();
+                    }
+                } else {
+                    bar.classList.remove('show');
+                }
+            }
+
+            // click: load more batches while available, otherwise redirect to pokedex
+            bar.addEventListener('click', async () => {
+                if (loadedCount < (pokemonList ? pokemonList.length : 0)) {
+                    // load next batch
+                    await loadBatch();
+                    // scroll a bit so user sees new cards
+                    window.scrollBy({ top: 200, behavior: 'smooth' });
+                } else {
+                    window.location.href = 'pokedex.html';
+                }
+            });
+
+            window.addEventListener('scroll', checkScroll, { passive: true });
+            window.addEventListener('resize', checkScroll);
+            // initial check in case page is short
+            checkScroll();
+        })();
+        
+        // Create a hero collage image from first few pokemons
+        async function createHeroCollage(items) {
+            try {
+                if (!items || !items.length) return;
+                const imgs = [];
+                for (let i=0;i<items.length;i++){
+                    try {
+                        const res = await fetch(items[i].url);
+                        const data = await res.json();
+                        const url = (data.sprites && data.sprites.other && data.sprites.other['official-artwork'] && data.sprites.other['official-artwork'].front_default)
+                            || (data.sprites && data.sprites.front_default);
+                        if (url) imgs.push(url);
+                    } catch(e){ }
+                }
+                if (!imgs.length) return;
+                const cols = 3, rows = Math.ceil(imgs.length/cols);
+                const tileW = 300, tileH = 300;
+                const canvas = document.createElement('canvas');
+                canvas.width = cols * tileW;
+                canvas.height = rows * tileH;
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = '#fff'; ctx.fillRect(0,0,canvas.width, canvas.height);
+                for (let i=0;i<imgs.length;i++){
+                    const img = new Image();
+                    img.crossOrigin = 'anonymous';
+                    await new Promise((resolve, reject)=>{
+                        img.onload = () => resolve(); img.onerror = () => resolve();
+                        img.src = imgs[i];
+                    });
+                    const c = i % cols, r = Math.floor(i/cols);
+                    const x = c * tileW, y = r * tileH;
+                    // draw centered and cover
+                    const ratio = Math.max(tileW / img.width, tileH / img.height || 1);
+                    const w = img.width * ratio, h = img.height * ratio;
+                    const dx = x + (tileW - w)/2, dy = y + (tileH - h)/2;
+                    try { ctx.drawImage(img, dx, dy, w, h); } catch(e){}
+                }
+                const hero = document.querySelector('.image-section img');
+                if (hero) {
+                    hero.src = canvas.toDataURL('image/png');
+                }
+            } catch(e) {
+                // ignore and keep default image
+            }
+        }
+    </script>
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Minhas Listas — Pokédex</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Shrikhand&family=Archivo+Black&family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+	<style>
+		body{ font-family:'Poppins',sans-serif; margin:0; background:#f8f8f8; color:#222 }
+		.topbar{ position:sticky; top:0; z-index:1100; background:linear-gradient(180deg,#fff,#fbfbfb); box-shadow:0 6px 18px rgba(25,25,25,0.07); display:flex; align-items:center; justify-content:space-between; padding:12px 18px; }
+		.brand{ display:flex; align-items:center; gap:10px; font-weight:800; color:#222 }
+		.brand img{ width:36px }
+		main{ padding:22px; max-width:1100px; margin:0 auto }
+		h1.page-title{ font-family:'Shrikhand',cursive; font-size:40px; margin:6px 0 4px 0; color:#951c1c }
+		.subtitle{ color:#666; margin:0 0 18px 0 }
+		.create-form{ display:flex; gap:8px; align-items:center; margin-bottom:18px; flex-wrap:wrap }
+		.create-form input, .create-form textarea{ padding:10px; border-radius:8px; border:1px solid #ddd }
+		.create-form button{ background:#e53935; color:#fff; border:none; padding:10px 14px; border-radius:8px; cursor:pointer; font-weight:700 }
+		.lists-grid{ display:grid; grid-template-columns: repeat(auto-fit,minmax(240px,1fr)); gap:14px }
+		.list-card{ background:#fff; padding:12px; border-radius:12px; box-shadow:0 8px 22px rgba(0,0,0,0.06); min-height:120px; display:flex; flex-direction:column; justify-content:space-between }
+		.list-card h3{ margin:0 0 6px 0 }
+		.list-card .meta{ color:#666; font-size:13px }
+		.list-actions{ display:flex; gap:8px; justify-content:flex-end; margin-top:10px }
+		.btn-ghost{ background:#eee; border:none; padding:8px 10px; border-radius:8px; cursor:pointer }
+		.btn-danger{ background:#e53935; color:#fff; border:none; padding:8px 10px; border-radius:8px; cursor:pointer }
+		.detail-view{ background:#fff; padding:16px; border-radius:12px; box-shadow:0 12px 30px rgba(0,0,0,0.06); margin-bottom:18px }
+		.grid-items{ display:grid; grid-template-columns: repeat(auto-fit,minmax(160px,1fr)); gap:12px }
+		.poke-tile{ background:#fafafa; border-radius:10px; padding:10px; text-align:center }
+		.poke-tile img{ width:96px; height:96px; object-fit:contain }
+		.small{ font-size:13px }
+		.empty{ color:#666; text-align:center; padding:30px }
+	</style>
+</head>
+<body>
+	<header class="topbar">
+		<a href="Index.html" class="brand" aria-label="Voltar para Início"><img src="pokebola.png" alt="pokebola"><span>Pokédex</span></a>
+		<nav style="display:flex;gap:14px;align-items:center">
+			<a href="Index.html">Início</a>
+			<a href="pokedex.html">Pokedéx</a>
+		</nav>
+	</header>
+
+	<main>
+		<h1 class="page-title">Minhas listas</h1>
+		<p class="subtitle">Aqui estão as listas que você criou. Você pode editar, excluir, exportar ou abrir para ver os Pokémons.</p>
+
+		<div style="max-width:900px;margin:0 auto 18px auto">
+			<form id="create-list-form" class="create-form" onsubmit="return false;">
+				<input id="list-name" placeholder="Nome da lista" aria-label="Nome da lista" required style="min-width:200px" />
+				<input id="list-desc" placeholder="Descrição (opcional)" aria-label="Descrição da lista" style="min-width:280px" />
+				<button id="create-list">Criar lista</button>
+			</form>
+		</div>
+
+		<section id="lists-section">
+			<div id="lists-empty" class="empty" style="display:none">Você ainda não criou listas.</div>
+			<div id="lists-grid" class="lists-grid"></div>
+		</section>
+
+		<section id="list-detail-wrap" style="margin-top:18px"></section>
+	</main>
+
+	<script>
+		// Reuse same localStorage key used by pokedex page
+		const LISTS_KEY = 'pokedex_lists_v1';
+		let lists = {};
+
+		function loadLists(){ try{ lists = JSON.parse(localStorage.getItem(LISTS_KEY) || '{}'); }catch(e){ lists = {}; } renderLists(); }
+		function saveLists(){ localStorage.setItem(LISTS_KEY, JSON.stringify(lists)); renderLists(); }
+
+		function createList(name, description){ if(!name || !name.trim()) return null; const id = 'list_' + Date.now(); lists[id] = { id, name: name.trim(), description: (description||'').trim(), items: [] }; saveLists(); return lists[id]; }
+		function editList(id, name, description){ if(!lists[id]) return; if(name && name.trim()) lists[id].name = name.trim(); lists[id].description = description ? description.trim() : ''; saveLists(); }
+		function deleteList(id){ if(!lists[id]) return; delete lists[id]; saveLists(); }
+		function addPokemonToList(listId, poke){ if(!lists[listId]) return; const exists = lists[listId].items.find(i=> String(i.id) === String(poke.id)); if(exists) return; lists[listId].items.push({ id: poke.id, name: poke.name, img: (poke.sprites && (poke.sprites.other && poke.sprites.other['official-artwork'] && poke.sprites.other['official-artwork'].front_default)) || poke.sprites?.front_default || poke.img || 'pokemon.png' }); saveLists(); }
+		function removePokemonFromList(listId, pokeId){ if(!lists[listId]) return; lists[listId].items = (lists[listId].items||[]).filter(i => String(i.id) !== String(pokeId)); saveLists(); }
+
+		function renderLists(){
+			const grid = document.getElementById('lists-grid');
+			const empty = document.getElementById('lists-empty');
+			grid.innerHTML = '';
+			const keys = Object.keys(lists||{});
+			if(!keys.length){ empty.style.display = 'block'; return; } else empty.style.display='none';
+			keys.forEach(k=>{
+				const l = lists[k];
+				const card = document.createElement('div'); card.className = 'list-card';
+				const desc = l.description ? `<div class="meta small">${escapeHtml(l.description)}</div>` : '';
+				const preview = (l.items||[]).slice(0,4).map(it=> `<div style="display:inline-block;margin-right:6px;color:#444">${escapeHtml(it.name)}</div>`).join('');
+				card.innerHTML = `<div><h3>${escapeHtml(l.name)}</h3>${desc}<div style="margin-top:8px" class="small">${preview || '<em>Nenhum Pokémon</em>'}</div></div>`;
+				const actions = document.createElement('div'); actions.className='list-actions';
+				const openBtn = document.createElement('button'); openBtn.className='btn-ghost'; openBtn.textContent='Abrir'; openBtn.addEventListener('click', ()=> showListDetail(l.id));
+				const editBtn = document.createElement('button'); editBtn.className='btn-ghost'; editBtn.textContent='Editar'; editBtn.addEventListener('click', ()=>{ const n = prompt('Novo nome da lista', l.name); if(n===null) return; const d = prompt('Nova descrição (opcional)', l.description||''); editList(l.id,n,d); });
+				const exportBtn = document.createElement('button'); exportBtn.className='btn-ghost'; exportBtn.textContent='Exportar'; exportBtn.addEventListener('click', ()=>{ const txt = JSON.stringify(l, null, 2); window.open('data:application/json;charset=utf-8,'+encodeURIComponent(txt)); });
+				const delBtn = document.createElement('button'); delBtn.className='btn-danger'; delBtn.textContent='Excluir'; delBtn.addEventListener('click', ()=>{ const ok = confirm(`Excluir lista "${l.name}"? Esta ação não pode ser desfeita.`); if(!ok) return; deleteList(l.id); });
+				actions.appendChild(openBtn); actions.appendChild(editBtn); actions.appendChild(exportBtn); actions.appendChild(delBtn);
+				card.appendChild(actions);
+				grid.appendChild(card);
+			});
+		}
+
+		function showListDetail(listId){ const wrap = document.getElementById('list-detail-wrap'); wrap.innerHTML = ''; const l = lists[listId]; if(!l) return; const detail = document.createElement('div'); detail.className='detail-view'; detail.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><div><h3 style="margin:0">${escapeHtml(l.name)}</h3><div class="small meta">${l.description||'<em>Sem descrição</em>'}</div></div><div><button id="back-to-lists" class="btn-ghost">Voltar</button><button id="export-list" class="btn-ghost">Exportar</button><button id="delete-list" class="btn-danger">Excluir lista</button></div></div><div id="list-items" class="grid-items"></div>`;
+			wrap.appendChild(detail);
+			const itemsWrap = detail.querySelector('#list-items');
+			(l.items||[]).forEach(it=>{
+				const tile = document.createElement('div'); tile.className='poke-tile';
+				tile.innerHTML = `<img src="${escapeHtml(it.img)}" alt="${escapeHtml(it.name)}"><div style="font-weight:700;margin-top:8px">${escapeHtml(it.name)}</div><div style="margin-top:8px"><button class="btn-danger remove-item">Remover</button></div>`;
+				itemsWrap.appendChild(tile);
+				const rm = tile.querySelector('.remove-item'); rm.addEventListener('click', ()=>{ removePokemonFromList(listId, it.id); showListDetail(listId); });
+			});
+			detail.querySelector('#back-to-lists').addEventListener('click', ()=> { wrap.innerHTML=''; });
+			detail.querySelector('#export-list').addEventListener('click', ()=>{ const txt = JSON.stringify(l, null, 2); window.open('data:application/json;charset=utf-8,'+encodeURIComponent(txt)); });
+			detail.querySelector('#delete-list').addEventListener('click', ()=>{ const ok = confirm(`Excluir lista "${l.name}"? Esta ação não pode ser desfeita.`); if(!ok) return; deleteList(l.id); wrap.innerHTML=''; });
+		}
+
+		// small helper to escape HTML
+		function escapeHtml(s){ return (s||'').toString().replace(/[&<>\"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":"&#39;"}[c]; }); }
+
+		// hookup form
+		document.getElementById('create-list').addEventListener('click', ()=>{
+			const name = document.getElementById('list-name').value && document.getElementById('list-name').value.trim();
+			const desc = document.getElementById('list-desc').value && document.getElementById('list-desc').value.trim();
+			if(!name) return alert('Nome da lista é obrigatório');
+			createList(name, desc);
+			document.getElementById('list-name').value=''; document.getElementById('list-desc').value='';
+		});
+
+		// init
+		loadLists();
+	</script>
+</body>
+</html>
