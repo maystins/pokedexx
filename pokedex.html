@@ -196,7 +196,7 @@
       offset: 0,
       batchSize: 24,
       totalCount: null,
-      view: 'all' // 'all' or 'favorites'
+      view: 'all' // 'todos' ou 'favoritos'
     };
 
     // favoritos { id: {id,name,img,types} }
@@ -595,7 +595,7 @@
       const startTime = performance.now();
       const step = (now)=>{
         const t = Math.min(1, (now - startTime) / duration);
-        const eased = t<0.5 ? 2*t*t : -1 + (4-2*t)*t; // easeInOut approx
+        const eased = t<0.5 ? 2*t*t : -1 + (4-2*t)*t; // easeInOut
         const value = Math.round(start + (end - start) * eased);
         el.textContent = value;
         if(t < 1) requestAnimationFrame(step);

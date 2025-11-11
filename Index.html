@@ -214,6 +214,7 @@ nav ul li a:hover {
                 <li><a href="pokedex.html">Pokedéx</a></li>
                 <li><a href="pokedex.html#favorites" id="index-fav-link">Favoritos</a></li>
                 <li><a href="listas.html">Listas</a></li>
+                <li><a href="login.html">Login</a></li>
             </ul>
         </nav>
         <div class="search-box">
@@ -236,7 +237,7 @@ nav ul li a:hover {
     </main>
 
         <script>
-            // atualiza o link de favoritos com a contagem atual
+            // atualiza o link de favoritos com a contagem atual, autoexecutavel
             (function(){
                 try{
                     const favLink = document.getElementById('index-fav-link');
@@ -299,14 +300,13 @@ nav ul li a:hover {
             const btn = document.getElementById('start-search');
             const target = document.getElementById('pokemons');
             if (!btn || !target) return;
-
+            // addeventlistener para capturar o clique e do botao e fazer uma rolagem suave
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
                 const header = document.querySelector('header');
                 const headerHeight = header ? header.offsetHeight : 0;
                 const y = target.getBoundingClientRect().top + window.pageYOffset - headerHeight - 10;
                 window.scrollTo({ top: y, behavior: 'smooth' });
-                // for accessibility, move focus to section
                 target.setAttribute('tabindex', '-1');
                 target.focus({ preventScroll: true });
             });
