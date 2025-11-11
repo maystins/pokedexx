@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Shrikhand&family=Archivo+Black&family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Pokédex</title>
+    <link rel="stylesheet" href="styles.css">
+</html>
+
+<style> 
+    body {
+        font-family: "Poppins", sans-serif;
+        background-color: #f0f0f0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+    .login-container {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        width: 300px;
+    }
+    .login-container h2 {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    .login-container input[type="Login"],
+    .login-container input[type="Senha"] {
+        width: 100%;
+        padding: 10px;
+        margin: 10px 0;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+    .login-container button {
+        width: 100%;
+        padding: 10px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    .login-container button:hover {
+        background-color: #45a049;
+    }
+    .logo img {
+        height: 50px;
+    }
+    header 
+    {
+        margin-top: 10px;
+        justify-content: space-between;
+        align-items: top;
+        padding: 10px 20px;
+    }
+    nav ul li a {
+    text-decoration: none;
+    color: black;
+    font-weight: 400;
+    transition: color 0.3s, transform 0.3s; /* animação suave */
+    display: flex;
+    }
+    nav ul li a:hover {
+    color: #FF0000; /* muda a cor ao passar o mouse */
+    transform: scale(1.1); /* aumenta ligeiramente o tamanho */
+    }
+    main 
+    {
+        display: flex;
+        padding: 20px;
+    }
+</style>
+<body>
+    <div class="login-container">
+        <h2>Login</h2>
+        <form action="pokedex.html" method="post">
+            <input type="Login" placeholder="Login" required>
+            <input type="Senha" placeholder="Senha" required>
+            <button type="submit">Entrar</button>
+        </form>
+    </div>
+</body>
+<header>
+    <div class="logo">
+        <a href="Index.html">
+            <img src="pokebola.png" alt="Logo Pokédex">
+        </div>
+        <nav>
+            <ul>
+                <li><a href="Index.html">Início</a></li>
+                <li><a href="pokedex.html">Pokedéx</a></li>
+                <li><a href="listas.html">Listas</a></li>
+                <li><a href="login.html">Login</a></li>
+            </ul>
+        </nav>
+
+</header>
