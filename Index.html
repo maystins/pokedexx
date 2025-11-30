@@ -25,7 +25,14 @@
             justify-content: space-between;
             align-items: center;
             padding: 15px 40px;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
         }
+        .user-info{ display:flex; align-items:center; gap:10px; padding:8px 14px; background:#f5f5f5; border-radius:20px }
+        .user-avatar{ width:32px; height:32px; border-radius:50%; background:#e53935; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px }
+        .user-name{ font-size:14px; font-weight:600; color:#333 }
+        .btn-logout{ background:#e53935; color:#fff; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-size:13px; font-weight:600; transition:background .2s }
+        .btn-logout:hover{ background:#c62828 }
 
         .logo {
             display: flex;
@@ -217,10 +224,7 @@ nav ul li a:hover {
                 <li><a href="login.html">Login</a></li>
             </ul>
         </nav>
-        <div class="search-box">
-            <input type="text" placeholder="Buscar...">
-            <button>🔍</button>
-        </div>
+        <div id="user-section-index"></div>
     </header>
 
     <main>
@@ -237,6 +241,36 @@ nav ul li a:hover {
     </main>
 
         <script>
+            // Sistema de autenticação
+            function checkLogin() {
+              const user = localStorage.getItem('pokedex_user');
+              const userSection = document.getElementById('user-section-index');
+              
+              if (user) {
+                const initial = user.charAt(0).toUpperCase();
+                userSection.innerHTML = `
+                  <div class="user-info">
+                    <div class="user-avatar">${initial}</div>
+                    <span class="user-name">${user}</span>
+                    <button class="btn-logout" onclick="logout()">Sair</button>
+                  </div>
+                `;
+              } else {
+                userSection.innerHTML = `
+                  <a href="login.html" style="background:#e53935;color:#fff;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px">Entrar</a>
+                `;
+              }
+            }
+
+            function logout() {
+              if (confirm('Deseja realmente sair?')) {
+                localStorage.removeItem('pokedex_user');
+                window.location.reload();
+              }
+            }
+
+            checkLogin();
+
             // atualiza o link de favoritos com a contagem atual, autoexecutavel
             (function(){
                 try{
