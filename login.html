@@ -1,341 +1,94 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Pokédex</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Login — Pokédex</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Shrikhand&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: #f5f5f5;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        .login-wrapper {
-            display: flex;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-            overflow: hidden;
-            max-width: 900px;
-            width: 100%;
-        }
-
-        .login-left {
-            flex: 1;
-            background: linear-gradient(135deg, #e53935 0%, #a52a2a 100%);
-            padding: 60px 40px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            text-align: center;
-        }
-
-        .login-left img {
-            width: 120px;
-            height: 120px;
-            margin-bottom: 30px;
-            animation: float 3s ease-in-out infinite;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-20px); }
-        }
-
-        .login-left h1 {
-            font-family: 'Shrikhand', cursive;
-            font-size: 42px;
-            margin-bottom: 15px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-        }
-
-        .login-left p {
-            font-size: 16px;
-            opacity: 0.9;
-            line-height: 1.6;
-        }
-
-        .login-right {
-            flex: 1;
-            padding: 60px 50px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        .login-right h2 {
-            color: #333;
-            font-size: 32px;
-            margin-bottom: 10px;
-        }
-
-        .login-right .subtitle {
-            color: #666;
-            margin-bottom: 40px;
-            font-size: 14px;
-        }
-
-        .form-group {
-            margin-bottom: 25px;
-        }
-
-        .form-group label {
-            display: block;
-            color: #333;
-            font-weight: 600;
-            margin-bottom: 8px;
-            font-size: 14px;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 14px 18px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 15px;
-            font-family: 'Poppins', sans-serif;
-            transition: all 0.3s;
-            background: #f9f9f9;
-        }
-
-        .form-group input:focus {
-            outline: none;
-            border-color: #e53935;
-            background: white;
-            box-shadow: 0 0 0 3px rgba(229, 57, 53, 0.1);
-        }
-
-        .form-group input::placeholder {
-            color: #999;
-        }
-
-        .remember-forgot {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            font-size: 14px;
-        }
-
-        .remember-forgot label {
-            display: flex;
-            align-items: center;
-            color: #666;
-            cursor: pointer;
-        }
-
-        .remember-forgot input[type="checkbox"] {
-            margin-right: 8px;
-            cursor: pointer;
-        }
-
-        .remember-forgot a {
-            color: #e53935;
-            text-decoration: none;
-            font-weight: 600;
-        }
-
-        .remember-forgot a:hover {
-            text-decoration: underline;
-        }
-
-        .btn-login {
-            width: 100%;
-            padding: 16px;
-            background: linear-gradient(135deg, #e53935 0%, #a52a2a 100%);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 4px 15px rgba(229, 57, 53, 0.3);
-        }
-
-        .btn-login:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(229, 57, 53, 0.4);
-        }
-
-        .btn-login:active {
-            transform: translateY(0);
-        }
-
-        .divider {
-            text-align: center;
-            margin: 30px 0;
-            color: #999;
-            font-size: 14px;
-            position: relative;
-        }
-
-        .divider::before,
-        .divider::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            width: 40%;
-            height: 1px;
-            background: #e0e0e0;
-        }
-
-        .divider::before { left: 0; }
-        .divider::after { right: 0; }
-
-        .signup-link {
-            text-align: center;
-            color: #666;
-            font-size: 14px;
-        }
-
-        .signup-link a {
-            color: #e53935;
-            text-decoration: none;
-            font-weight: 600;
-        }
-
-        .signup-link a:hover {
-            text-decoration: underline;
-        }
-
-        .back-home {
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        .back-home a {
-            color: #666;
-            text-decoration: none;
-            font-size: 14px;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .back-home a:hover {
-            color: #e53935;
-        }
-
-        @media (max-width: 768px) {
-            .login-wrapper {
-                flex-direction: column;
-            }
-
-            .login-left {
-                padding: 40px 30px;
-            }
-
-            .login-left h1 {
-                font-size: 32px;
-            }
-
-            .login-left img {
-                width: 80px;
-                height: 80px;
-            }
-
-            .login-right {
-                padding: 40px 30px;
-            }
-
-            .login-right h2 {
-                font-size: 26px;
-            }
-        }
+        :root{ --bg1:#ffefef; --bg2:#fff6f6; --accent:#e53935; --muted:#6b6b6b }
+        html,body{height:100%;margin:0;font-family:'Poppins',system-ui,Segoe UI,Roboto,'Helvetica Neue',Arial}
+        body{display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--bg1),var(--bg2));}
+        .container{width:100%;max-width:980px;padding:28px;box-sizing:border-box;display:grid;grid-template-columns:1fr 420px;gap:28px;align-items:center}
+        .hero{padding:28px;border-radius:16px;background:rgba(255,255,255,0.6);box-shadow:0 12px 40px rgba(0,0,0,0.06);backdrop-filter: blur(6px)}
+        .hero h1{margin:0 0 12px 0;font-size:28px;color:#2b2b2b}
+        .hero p{margin:0;color:var(--muted)}
+        .card{background:#fff;padding:22px;border-radius:12px;box-shadow:0 12px 30px rgba(0,0,0,0.08)}
+        .brand{display:flex;gap:12px;align-items:center;margin-bottom:8px}
+        .brand img{width:44px;height:44px}
+        .card h2{margin:0 0 6px 0;font-size:20px}
+        .card p{margin:0 0 16px 0;color:var(--muted);font-size:14px}
+        .field{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+        .field input{padding:12px 14px;border:1px solid #eee;border-radius:10px;font-size:14px;outline:none;transition:box-shadow .12s, border-color .12s}
+        .field input:focus{box-shadow:0 6px 18px rgba(229,57,53,0.08);border-color:rgba(229,57,53,0.22)}
+        .actions{display:flex;gap:10px;align-items:center}
+        .btn{flex:1;padding:12px 14px;border-radius:10px;border:none;cursor:pointer;font-weight:700}
+        .btn-primary{background:linear-gradient(180deg,var(--accent),#b71c1c);color:#fff}
+        .btn-ghost{background:#f4f4f6;color:#222;border-radius:10px;padding:10px 12px}
+        .small-link{font-size:13px;color:var(--muted);text-decoration:none}
+        .helper{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+        @media (max-width:900px){.container{grid-template-columns:1fr;}.hero{order:2}.card{order:1}}
     </style>
 </head>
 <body>
-    <div class="login-wrapper">
-        <div class="login-left">
-            <img src="pokebola.png" alt="Pokébola">
-            <h1>Pokédex</h1>
-            <p>Entre para explorar o mundo dos Pokémons, criar suas listas favoritas e descobrir todos os detalhes!</p>
-        </div>
+    <main class="container">
+        <section class="hero" aria-hidden="true">
+            <h1>Bem-vindo à sua Pokédex</h1>
+            <p>Organize, pesquise e salve seus Pokémons favoritos. Faça login para acessar suas listas e favoritos personalizados.</p>
+        </section>
 
-        <div class="login-right">
-            <h2>Bem-vindo!</h2>
-            <p class="subtitle">Entre com suas credenciais para continuar</p>
-
-            <form id="loginForm">
-                <div class="form-group">
-                    <label for="username">Usuário</label>
-                    <input 
-                        type="text" 
-                        id="username" 
-                        name="username" 
-                        placeholder="Digite seu usuário"
-                        required
-                    >
+        <aside class="card" aria-labelledby="login-title">
+            <div class="brand">
+                <a href="Index.html" aria-label="Voltar ao início"><img src="pokebola.png" alt="pokebola"></a>
+                <div>
+                    <div style="font-weight:700">Pokédex</div>
+                    <div style="font-size:12px;color:var(--muted)">Acesse sua conta</div>
                 </div>
-
-                <div class="form-group">
-                    <label for="password">Senha</label>
-                    <input 
-                        type="password" 
-                        id="password" 
-                        name="password" 
-                        placeholder="Digite sua senha"
-                        required
-                    >
+            </div>
+            <h2 id="login-title">Entrar</h2>
+            <p>Use seu nome de usuário e senha para entrar.</p>
+            <form id="login-form">
+                <div class="field">
+                    <label class="small-link" for="username">Usuário</label>
+                    <input id="username" name="username" type="text" placeholder="Digite seu usuário" required autocomplete="username">
                 </div>
-
-                <div class="remember-forgot">
-                    <label>
-                        <input type="checkbox" name="remember">
-                        Lembrar-me
-                    </label>
-                    <a href="#" onclick="alert('Funcionalidade em desenvolvimento!'); return false;">Esqueceu a senha?</a>
+                <div class="field">
+                    <label class="small-link" for="password">Senha</label>
+                    <input id="password" name="password" type="password" placeholder="••••••••" required autocomplete="current-password">
                 </div>
-
-                <button type="submit" class="btn-login">Entrar</button>
-
-                <div class="divider">ou</div>
-
-                <div class="signup-link">
-                    Não tem uma conta? <a href="#" onclick="alert('Funcionalidade em desenvolvimento!'); return false;">Cadastre-se</a>
+                <div class="helper">
+                    <a class="small-link" href="#" id="forgot">Esqueceu a senha?</a>
+                    <a class="small-link" href="listas.html">Criar conta</a>
                 </div>
-
-                <div class="back-home">
-                    <a href="Index.html">← Voltar para o início</a>
+                <div class="actions">
+                    <button type="submit" class="btn btn-primary">Entrar</button>
+                    <button type="button" id="demo" class="btn btn-ghost">Entrar como demo</button>
                 </div>
             </form>
-        </div>
-    </div>
+        </aside>
+    </main>
 
     <script>
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
+        const form = document.getElementById('login-form');
+        form.addEventListener('submit', (e)=>{
             e.preventDefault();
-            
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-
-            // Validação simples
-            if (username && password) {
-                // Salva o nome do usuário no localStorage
-                localStorage.setItem('pokedex_user', username);
-                
-                // Redireciona para a pokédex
-                window.location.href = 'pokedex.html';
-            } else {
-                alert('Por favor, preencha todos os campos!');
+            const u = document.getElementById('username').value.trim();
+            const p = document.getElementById('password').value.trim();
+            if(u.length < 2 || p.length < 4){
+                alert('Usuário ou senha inválidos.');
+                return;
             }
+            // armazenar usuário no localStorage (autenticação simples para este protótipo)
+            try{ localStorage.setItem('pokedex_user', u); }catch(err){ /* ignore */ }
+            // redireciona para a pokedex
+            window.location.href = 'pokedex.html';
+        });
+        document.getElementById('demo').addEventListener('click', ()=>{ document.getElementById('username').value='demo'; document.getElementById('password').value='demo1234';
+            // salvar demo como usuário e submeter
+            try{ localStorage.setItem('pokedex_user', 'demo'); }catch(e){}
+            form.dispatchEvent(new Event('submit'));
         });
     </script>
 </body>
